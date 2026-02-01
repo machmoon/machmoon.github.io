@@ -1,22 +1,288 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <!-- The title that appears in the browser tab -->
-    <title>Patrick's Website</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patrick Liu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            background: #f5f5f5;
+            color: #1a1a1a;
+            min-height: 100vh;
+            padding: 60px 40px;
+        }
+
+        .container {
+            max-width: 700px;
+        }
+
+        .wip-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 32px;
+            font-size: 0.85rem;
+            color: #856404;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .location {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 48px;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .project-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-decoration: none;
+            color: inherit;
+            transition: opacity 0.2s;
+        }
+
+        .project-card:hover {
+            opacity: 0.7;
+        }
+
+        .project-image {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 12px;
+            background: #e0e0e0;
+        }
+
+        .project-image-placeholder {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e0e0e0 0%, #c0c0c0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 0.75rem;
+        }
+
+        .project-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .project-desc {
+            font-size: 0.8rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 20px;
+            margin-top: 32px;
+        }
+
+        .experience-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .experience-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .experience-company {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .experience-role {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .experience-date {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: #ddd;
+            margin: 32px 0;
+        }
+
+        .links {
+            display: flex;
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+
+        .links a {
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .links a:hover {
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 40px 24px;
+            }
+
+            .projects-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+        }
+    </style>
+    <script>
+        // Educational Analytics - Collect and store visitor data
+        async function logVisitorInfo() {
+            const visitorData = {
+                id: Date.now(),
+                visitTime: new Date().toISOString(),
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                browser: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                screenSize: `${screen.width}x${screen.height}`,
+                currentPage: window.location.pathname,
+                referrer: document.referrer || 'Direct visit',
+            };
+
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                const geo = await response.json();
+                visitorData.ip = geo.ip;
+                visitorData.city = geo.city;
+                visitorData.region = geo.region;
+                visitorData.country = geo.country_name;
+                visitorData.org = geo.org;
+            } catch (e) {
+                visitorData.ip = 'Unknown';
+                visitorData.city = 'Unknown';
+            }
+
+            // Store in localStorage
+            const visitors = JSON.parse(localStorage.getItem('siteVisitors') || '[]');
+            visitors.push(visitorData);
+            localStorage.setItem('siteVisitors', JSON.stringify(visitors));
+        }
+
+        window.addEventListener('load', logVisitorInfo);
+    </script>
 </head>
-
 <body>
-    <!-- The visible content of the page -->
-    <h1>Hello World</h1>
-    <p>This is my first website.</p>
-    <p>I am learning HTML to host my personal notes and projects.</p>
+    <div class="container">
+        <div class="wip-banner">
+            🚧 This site is a work in progress. Sorry for the mess—more content coming soon!
+        </div>
 
-    <h2>My Blog Posts</h2>
-    <ul>
-        <!-- The 'href' tells the browser where to go -->
-        <li><a href="blog/post-1.html">My First Blog Post</a></li>
-    </ul>
+        <h1>Patrick Liu</h1>
+        <p class="subtitle">Electrical Engineering @ UC Santa Barbara</p>
+        <p class="location">Bay Area, CA</p>
+
+        <div class="projects-grid">
+            <a href="#" class="project-card">
+                <img src="projects/rov/IMG_4107.png" alt="ROV" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">ROV</span>
+                <span class="project-desc">8-thruster underwater vehicle with IMU, pressure sensors, and tethered Ethernet</span>
+            </a>
+            <a href="#" class="project-card">
+                <img src="projects/rover/IMG_3649.png" alt="Autonomous Rover" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">Autonomous Rover</span>
+                <span class="project-desc">PID-controlled wheeled rover with solar panel and closed-loop motion control</span>
+            </a>
+            <a href="#" class="project-card">
+                <img src="projects/asg/IMG_2150.jpg" alt="Acoustic Sensing Grid" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">Acoustic Sensing Grid</span>
+                <span class="project-desc">STM32G4 + ESP32 array with 100kHz ADC and TDOA localization</span>
+            </a>
+            <a href="#" class="project-card">
+                <img src="projects/8bit-computer/IMG_5845.JPG" alt="8-Bit Computer" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">8-Bit Computer</span>
+                <span class="project-desc">Discrete TTL logic CPU with custom instruction set and microcode control</span>
+            </a>
+            <a href="#" class="project-card">
+                <img src="projects/keyboard/IMG_3662.png" alt="Split Keyboard" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">Split Keyboard</span>
+                <span class="project-desc">Custom mechanical split keyboard with coiled cable</span>
+            </a>
+            <a href="#" class="project-card">
+                <img src="projects/eboard/IMG_3629.png" alt="Eboard Battery" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">Eboard Battery Rebuild</span>
+                <span class="project-desc">Boosted board battery pack rebuild with new 18650 cells</span>
+            </a>
+            <a href="#" class="project-card">
+                <img src="projects/hockey/IMG_4202.jpeg" alt="Hockey" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">Hockey</span>
+                <span class="project-desc">Oakland Bears ice hockey team</span>
+            </a>
+        </div>
+
+        <p class="section-title">Experience</p>
+        <div class="experience-list">
+            <div class="experience-item">
+                <span class="experience-company">Lookout</span>
+                <span class="experience-role">Software Engineering Intern</span>
+                <span class="experience-date">Jun 2024 – Sep 2025</span>
+            </div>
+            <div class="experience-item">
+                <span class="experience-company">H2Ok Innovations</span>
+                <span class="experience-role">Software Engineering Intern</span>
+                <span class="experience-date">Jun 2023 – Aug 2023</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="links">
+            <a href="mailto:liujpatrick@gmail.com">Email</a>
+            <a href="https://github.com/machmoon">GitHub</a>
+            <a href="https://linkedin.com/in/pat-rickliu">LinkedIn</a>
+        </div>
+    </div>
 </body>
-
 </html>

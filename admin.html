@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        .login-container {
+            max-width: 300px;
+            margin: 100px auto;
+            text-align: center;
+        }
+
+        .login-container h1 {
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            color: #fff;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #2a2a2a;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 16px;
+        }
+
+        .login-container input:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            color: #1a1a1a;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .login-container button:hover {
+            opacity: 0.9;
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 0.85rem;
+            margin-top: 12px;
+        }
+
+        .dashboard {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .dashboard h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .dashboard .subtitle {
+            color: #888;
+            margin-bottom: 32px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .stat-card .label {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .visitors-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #2a2a2a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .visitors-table th,
+        .visitors-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .visitors-table th {
+            background: #333;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .visitors-table td {
+            font-size: 0.9rem;
+        }
+
+        .visitors-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .visitors-table tr:hover td {
+            background: #333;
+        }
+
+        .actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .actions button {
+            padding: 10px 20px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: transparent;
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .actions button:hover {
+            background: #333;
+        }
+
+        .actions button.danger {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .actions button.danger:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .visitors-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginForm">
+        <h1>🔒 Admin Panel</h1>
+        <input type="password" id="password" placeholder="Enter password" onkeypress="if(event.key === 'Enter') login()">
+        <button onclick="login()">Login</button>
+        <p class="error" id="error"></p>
+    </div>
+
+    <div class="dashboard" id="dashboard">
+        <h1>📊 Visitor Analytics</h1>
+        <p class="subtitle">Educational analytics dashboard</p>
+
+        <div class="stats" id="stats"></div>
+
+        <div id="tableContainer"></div>
+
+        <div class="actions">
+            <button onclick="exportData()">Export CSV</button>
+            <button onclick="refreshData()">Refresh</button>
+            <button class="danger" onclick="clearData()">Clear All Data</button>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        // Password hash (not plaintext for security)
+        const ADMIN_HASH = '8435e92c72abf11b34520be6ce5bc7a84ed7b1fb46c7f3f6f809bd9dacb3fec7';
+
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function login() {
+            const password = document.getElementById('password').value;
+            const hash = await hashPassword(password);
+            if (hash === ADMIN_HASH) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('dashboard').classList.add('active');
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                loadDashboard();
+            } else {
+                document.getElementById('error').textContent = 'Incorrect password';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            location.reload();
+        }
+
+        function loadDashboard() {
+            const visitors = JSON.parse(localStorage.getItem('siteVisitors') || '[]');
+            
+            // Calculate stats
+            const uniqueIPs = [...new Set(visitors.map(v => v.ip))].length;
+            const countries = [...new Set(visitors.map(v => v.country).filter(Boolean))];
+            const today = new Date().toDateString();
+            const todayVisits = visitors.filter(v => new Date(v.visitTime).toDateString() === today).length;
+
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="number">${visitors.length}</div>
+                    <div class="label">Total Visits</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${uniqueIPs}</div>
+                    <div class="label">Unique Visitors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${todayVisits}</div>
+                    <div class="label">Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">${countries.length}</div>
+                    <div class="label">Countries</div>
+                </div>
+            `;
+
+            if (visitors.length === 0) {
+                document.getElementById('tableContainer').innerHTML = '<div class="no-data">No visitor data yet. Visit the main site to start collecting data.</div>';
+                return;
+            }
+
+            // Build table (newest first)
+            const reversedVisitors = [...visitors].reverse();
+            let tableHTML = `
+                <table class="visitors-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Location</th>
+                            <th>IP</th>
+                            <th>Device</th>
+                            <th>Referrer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            reversedVisitors.forEach(v => {
+                const time = new Date(v.visitTime).toLocaleString();
+                const location = [v.city, v.region, v.country].filter(Boolean).join(', ') || 'Unknown';
+                const device = getDeviceInfo(v.browser);
+                
+                tableHTML += `
+                    <tr>
+                        <td>${time}</td>
+                        <td>${location}</td>
+                        <td>${v.ip || 'Unknown'}</td>
+                        <td>${device}</td>
+                        <td>${v.referrer || 'Direct'}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            document.getElementById('tableContainer').innerHTML = tableHTML;
+        }
+
+        function getDeviceInfo(userAgent) {
+            if (!userAgent) return 'Unknown';
+            if (userAgent.includes('iPhone')) return '📱 iPhone';
+            if (userAgent.includes('Android')) return '📱 Android';
+            if (userAgent.includes('iPad')) return '📱 iPad';
+            if (userAgent.includes('Mac')) return '💻 Mac';
+            if (userAgent.includes('Windows')) return '💻 Windows';
+            if (userAgent.includes('Linux')) return '💻 Linux';
+            return '🖥️ Desktop';
+        }
+
+        function exportData() {
+            const visitors = JSON.parse(localStorage.getItem('siteVisitors') || '[]');
+            if (visitors.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const headers = ['Time', 'IP', 'City', 'Region', 'Country', 'ISP', 'Device', 'Screen', 'Referrer'];
+            const csv = [
+                headers.join(','),
+                ...visitors.map(v => [
+                    v.visitTime,
+                    v.ip,
+                    v.city,
+                    v.region,
+                    v.country,
+                    v.org,
+                    v.platform,
+                    v.screenSize,
+                    v.referrer
+                ].map(val => `"${val || ''}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `visitors_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function refreshData() {
+            loadDashboard();
+        }
+
+        function clearData() {
+            if (confirm('Are you sure you want to delete all visitor data?')) {
+                localStorage.removeItem('siteVisitors');
+                loadDashboard();
+            }
+        }
+
+        // Check if already logged in
+        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            loadDashboard();
+        }
+    </script>
+</body>
+</html>
+
