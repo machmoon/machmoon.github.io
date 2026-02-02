@@ -17,7 +17,7 @@
             background: #f5f5f5;
             color: #1a1a1a;
             min-height: 100vh;
-            padding: 60px 40px;
+            padding: 60px 40px 60px 80px;
         }
 
         .container {
@@ -73,12 +73,21 @@
             opacity: 0.7;
         }
 
-        .project-image {
+        .project-image,
+        .project-video {
             width: 100%;
             aspect-ratio: 1;
             object-fit: cover;
             border-radius: 12px;
             background: #e0e0e0;
+        }
+
+        .project-image-contain {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: contain;
+            border-radius: 12px;
+            background: #262421;
         }
 
         .project-image-placeholder {
@@ -169,7 +178,7 @@
 
         @media (max-width: 480px) {
             body {
-                padding: 40px 24px;
+                padding: 40px 24px 40px 32px;
             }
 
             .projects-grid {
@@ -225,7 +234,28 @@
         <p class="subtitle">Electrical Engineering @ UC Santa Barbara</p>
         <p class="location">Bay Area, CA</p>
 
+        <p class="section-title">Projects</p>
         <div class="projects-grid">
+            <a href="#" class="project-card">
+                <video src="projects/bwsi-auvc/auvc_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <span class="project-title">BWSI AUVC</span>
+                <span class="project-desc">MIT Beaver Works Summer Institute - Autonomous Underwater Vehicle Challenge</span>
+            </a>
+            <a href="#" class="project-card">
+                <video src="projects/minerl/minerl_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <span class="project-title">MineRL</span>
+                <span class="project-desc">Reinforcement learning agent trained in Minecraft environment</span>
+            </a>
+            <a href="#" class="project-card">
+                <video src="projects/cartpole/cartpole_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <span class="project-title">CartPole RL</span>
+                <span class="project-desc">Deep reinforcement learning for classic control problem</span>
+            </a>
+            <a href="#" class="project-card">
+                <img src="projects/racecar-gym/racecar.png" alt="Racecar Gym" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">Racecar Gym</span>
+                <span class="project-desc">A2C/ResNet50 for autonomous vehicle control in PyBullet simulation</span>
+            </a>
             <a href="#" class="project-card">
                 <img src="projects/rov/IMG_4107.png" alt="ROV" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">ROV</span>
@@ -235,6 +265,16 @@
                 <img src="projects/rover/IMG_3649.png" alt="Autonomous Rover" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Autonomous Rover</span>
                 <span class="project-desc">PID-controlled wheeled rover with solar panel and closed-loop motion control</span>
+            </a>
+            <a href="#" class="project-card">
+                <img src="projects/balancing-robot/IMG_0800.png" alt="Self-Balancing Robot" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">Self-Balancing Robot</span>
+                <span class="project-desc">Two-wheeled balancing robot with PID control (sorry, lost video of it working!)</span>
+            </a>
+            <a href="#" class="project-card">
+                <video src="projects/line-bot/linebot_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <span class="project-title">Line Following Robot</span>
+                <span class="project-desc">Arduino with IR sensors for line tracking</span>
             </a>
             <a href="#" class="project-card">
                 <img src="projects/asg/IMG_2150.jpg" alt="Acoustic Sensing Grid" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
@@ -256,10 +296,24 @@
                 <span class="project-title">Eboard Battery Rebuild</span>
                 <span class="project-desc">Boosted board battery pack rebuild with new 18650 cells</span>
             </a>
+        </div>
+
+        <p class="section-title">Personal</p>
+        <div class="projects-grid">
             <a href="#" class="project-card">
                 <img src="projects/hockey/IMG_4202.jpeg" alt="Hockey" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Hockey</span>
                 <span class="project-desc">Oakland Bears ice hockey team</span>
+            </a>
+            <a href="#" class="project-card">
+                <video src="projects/skiing/skiing_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <span class="project-title">Skiing</span>
+                <span class="project-desc"></span>
+            </a>
+            <a href="https://www.chess.com/member/liupatric_k" class="project-card" target="_blank">
+                <img src="projects/chess/chess.png" alt="Chess" class="project-image">
+                <span class="project-title">Chess</span>
+                <span class="project-desc">1600 rating on Chess.com</span>
             </a>
         </div>
 
