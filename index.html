@@ -67,6 +67,7 @@
             text-decoration: none;
             color: inherit;
             transition: opacity 0.2s;
+            position: relative;
         }
 
         .project-card:hover {
@@ -112,6 +113,28 @@
             font-size: 0.8rem;
             color: #666;
             line-height: 1.4;
+        }
+
+        .audio-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .project-card.has-audio .audio-indicator {
+            opacity: 1;
+        }
+
+        .project-card.audio-enabled .audio-indicator {
+            opacity: 0;
         }
 
         .section-title {
@@ -226,11 +249,15 @@
         // Enable audio for tesla coil video on click
         window.addEventListener('load', function() {
             const teslaCoilVideo = document.getElementById('tesla-coil-video');
-            if (teslaCoilVideo) {
-                teslaCoilVideo.addEventListener('click', function() {
-                    if (this.muted) {
-                        this.muted = false;
-                        this.play().catch(e => console.log('Play failed:', e));
+            const teslaCoilCard = document.getElementById('tesla-coil-card');
+            if (teslaCoilVideo && teslaCoilCard) {
+                teslaCoilCard.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (teslaCoilVideo.muted) {
+                        teslaCoilVideo.muted = false;
+                        teslaCoilVideo.play().catch(e => console.log('Play failed:', e));
+                        teslaCoilCard.classList.add('audio-enabled');
                     }
                 });
             }
@@ -309,11 +336,12 @@
                 <span class="project-title">Eboard Battery Rebuild</span>
                 <span class="project-desc">Boosted board battery pack rebuild with new 18650 cells</span>
             </a>
-            <a href="#" class="project-card">
+            <div class="project-card has-audio" id="tesla-coil-card">
                 <video src="projects/tesla-coil/timelapse.mp4" class="project-video" id="tesla-coil-video" autoplay loop muted playsinline></video>
+                <span class="audio-indicator">🔊 Click to hear</span>
                 <span class="project-title">Tesla Coil</span>
-                <span class="project-desc">High-voltage resonant transformer - soldering timelapse (click to unmute)</span>
-            </a>
+                <span class="project-desc">High-voltage resonant transformer - soldering timelapse</span>
+            </div>
         </div>
 
         <p class="section-title">Personal</p>
