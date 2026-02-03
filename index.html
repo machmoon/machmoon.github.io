@@ -222,6 +222,19 @@
         }
 
         window.addEventListener('load', logVisitorInfo);
+
+        // Enable audio for tesla coil video on click
+        window.addEventListener('load', function() {
+            const teslaCoilVideo = document.getElementById('tesla-coil-video');
+            if (teslaCoilVideo) {
+                teslaCoilVideo.addEventListener('click', function() {
+                    if (this.muted) {
+                        this.muted = false;
+                        this.play().catch(e => console.log('Play failed:', e));
+                    }
+                });
+            }
+        });
     </script>
 </head>
 <body>
@@ -297,9 +310,9 @@
                 <span class="project-desc">Boosted board battery pack rebuild with new 18650 cells</span>
             </a>
             <a href="#" class="project-card">
-                <video src="projects/tesla-coil/timelapse.mp4" class="project-video" autoplay loop playsinline></video>
+                <video src="projects/tesla-coil/timelapse.mp4" class="project-video" id="tesla-coil-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Tesla Coil</span>
-                <span class="project-desc">High-voltage resonant transformer - soldering timelapse</span>
+                <span class="project-desc">High-voltage resonant transformer - soldering timelapse (click to unmute)</span>
             </a>
         </div>
 
