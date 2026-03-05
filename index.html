@@ -83,6 +83,10 @@
             background: #e0e0e0;
         }
 
+        .project-audio {
+            width: 100%;
+        }
+
         .project-image-contain {
             width: 100%;
             aspect-ratio: 1;
@@ -320,6 +324,12 @@
                 <video src="projects/cognix/cognix.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">CogNix</span>
                 <span class="project-desc">AI-assisted learning platform and VS Code extension to analyze AI usage in coding workflows (SB Hacks 2026 Education Track winner)</span>
+            </a>
+            <a href="#" class="project-card">
+                <img src="projects/cadence/cadence.jpg" alt="Cadence" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <audio src="projects/cadence/cadence-demo.m4a" class="project-audio" controls preload="none"></audio>
+                <span class="project-title">Cadence</span>
+                <span class="project-desc">We built Cadence: a hybrid glove + camera MIDI controller where hand gestures become expressive music control. The ESP32 glove streams flex, thumb pressure/touch, hall sensors, and IMU data while MediaPipe tracks the hand in real time. We fused signals with velocity-based gesture detection (fast/slow EMAs), Madgwick wrist pitch-to-register mapping, thumb pressure expression, spatial hand-position effects, hall-sensor sustain, and a Markov harmonic engine for evolving chord beds. Built in 24 hours as a team.</span>
             </a>
             <a href="#" class="project-card">
                 <video src="projects/dactyl-manuform/timelapse.mp4" class="project-video" autoplay loop muted playsinline></video>
