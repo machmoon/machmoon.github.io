@@ -288,6 +288,23 @@
                     }
                 });
             }
+
+            const randomVideo = document.getElementById('random-video');
+            if (randomVideo) {
+                const randomPlaylist = [
+                    'projects/random/random_muscleup.mp4',
+                    'projects/random/random_backflip.mp4',
+                    'projects/random/random_wheelie.mp4',
+                    'projects/random/random_hockey.mp4'
+                ];
+                let randomIndex = 0;
+
+                randomVideo.addEventListener('ended', function() {
+                    randomIndex = (randomIndex + 1) % randomPlaylist.length;
+                    randomVideo.src = randomPlaylist[randomIndex];
+                    randomVideo.play().catch(e => console.log('Random play failed:', e));
+                });
+            }
         });
     </script>
 </head>
@@ -336,7 +353,7 @@
             <a href="https://github.com/machmoon/cognix" class="project-card" target="_blank">
                 <video src="projects/cognix/cognix.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">CogNix</span>
-                <span class="project-desc">AI-assisted learning platform and VS Code extension to analyze AI usage in coding workflows (SB Hacks 2026 Education Track winner)</span>
+                <span class="project-desc">AI-assisted learning platform and VS Code extension to analyze AI usage in coding workflows</span>
             </a>
             <a href="#" class="project-card has-audio" id="cadence-card">
                 <img src="projects/cadence/cadence.jpg" alt="Cadence" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
@@ -348,7 +365,7 @@
                     Click to hear
                 </span>
                 <span class="project-title">Cadence</span>
-                <span class="project-desc">Cadence is a hybrid glove + camera MIDI controller that turns hand motion into expressive music using ESP32 sensor fusion, velocity-based gesture detection, and a Markov harmonic engine.</span>
+                <span class="project-desc">Cadence is a hybrid glove + camera MIDI controller turning hand motion into expressive music.</span>
             </a>
             <a href="#" class="project-card">
                 <video src="projects/dactyl-manuform/timelapse.mp4" class="project-video" autoplay loop muted playsinline></video>
@@ -368,7 +385,7 @@
             <a href="#" class="project-card">
                 <video src="projects/lightsout/lightsout_screen.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Lights Out</span>
-                <span class="project-desc"></span>
+                <span class="project-desc">The game consists of a 5 by 5 grid of lights. When the game starts, a random number or a stored pattern of these lights is switched on. Pressing any of the lights will toggle it and the four adjacent lights. The goal of the puzzle is to switch all the lights off, preferably in as few button presses as possible. After first touch you have 3 minutes to win as many as possible ;-)</span>
             </a>
             <a href="#" class="project-card">
                 <video src="projects/line-bot/linebot_video.mp4" class="project-video" autoplay loop muted playsinline></video>
@@ -426,7 +443,7 @@
         <p class="section-title">Personal</p>
         <div class="projects-grid">
             <a href="#" class="project-card">
-                <img src="projects/hockey/IMG_4202.jpeg" alt="Hockey" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <video src="projects/random/random_hockey.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Hockey</span>
                 <span class="project-desc">Oakland Bears ice hockey team</span>
             </a>
@@ -439,6 +456,11 @@
                 <img src="projects/chess/chess.gif" alt="Chess" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Chess</span>
                 <span class="project-desc">Sacrifice the BISHOP!!! (maybe rook next time)</span>
+            </a>
+            <a href="#" class="project-card">
+                <video src="projects/random/random_muscleup.mp4" class="project-video" id="random-video" autoplay muted playsinline></video>
+                <span class="project-title">Random</span>
+                <span class="project-desc">From chess to wheelies to a lot of fails.</span>
             </a>
         </div>
 
