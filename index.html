@@ -84,7 +84,7 @@
         }
 
         .project-audio {
-            width: 100%;
+            display: none;
         }
 
         .project-image-contain {
@@ -260,7 +260,7 @@
 
         window.addEventListener('load', logVisitorInfo);
 
-        // Enable audio for tesla coil video on click
+        // Enable audio interactions on click
         window.addEventListener('load', function() {
             const teslaCoilVideo = document.getElementById('tesla-coil-video');
             const teslaCoilCard = document.getElementById('tesla-coil-card');
@@ -272,6 +272,19 @@
                         teslaCoilVideo.muted = false;
                         teslaCoilVideo.play().catch(e => console.log('Play failed:', e));
                         teslaCoilCard.classList.add('audio-enabled');
+                    }
+                });
+            }
+
+            const cadenceAudio = document.getElementById('cadence-audio');
+            const cadenceCard = document.getElementById('cadence-card');
+            if (cadenceAudio && cadenceCard) {
+                cadenceCard.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (cadenceAudio.paused) {
+                        cadenceAudio.play().catch(e => console.log('Play failed:', e));
+                        cadenceCard.classList.add('audio-enabled');
                     }
                 });
             }
@@ -325,11 +338,17 @@
                 <span class="project-title">CogNix</span>
                 <span class="project-desc">AI-assisted learning platform and VS Code extension to analyze AI usage in coding workflows (SB Hacks 2026 Education Track winner)</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card has-audio" id="cadence-card">
                 <img src="projects/cadence/cadence.jpg" alt="Cadence" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
-                <audio src="projects/cadence/cadence-demo.m4a" class="project-audio" controls preload="none"></audio>
+                <audio src="projects/cadence/cadence-demo.m4a" class="project-audio" id="cadence-audio" preload="none"></audio>
+                <span class="audio-indicator">
+                    <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                    Click to hear
+                </span>
                 <span class="project-title">Cadence</span>
-                <span class="project-desc">We built Cadence: a hybrid glove + camera MIDI controller where hand gestures become expressive music control. The ESP32 glove streams flex, thumb pressure/touch, hall sensors, and IMU data while MediaPipe tracks the hand in real time. We fused signals with velocity-based gesture detection (fast/slow EMAs), Madgwick wrist pitch-to-register mapping, thumb pressure expression, spatial hand-position effects, hall-sensor sustain, and a Markov harmonic engine for evolving chord beds. Built in 24 hours as a team.</span>
+                <span class="project-desc">Cadence is a hybrid glove + camera MIDI controller that turns hand motion into expressive music control. An ESP32 glove streams flex, thumb pressure, hall sensor, and IMU data while MediaPipe tracks the hand in real time. We fused these inputs with velocity-based gesture detection and a Markov harmonic engine, and built the full system in 24 hours.</span>
             </a>
             <a href="#" class="project-card">
                 <video src="projects/dactyl-manuform/timelapse.mp4" class="project-video" autoplay loop muted playsinline></video>
