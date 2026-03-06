@@ -83,6 +83,11 @@
             background: #e0e0e0;
         }
 
+        .project-video-letterbox {
+            object-fit: contain;
+            background: #000;
+        }
+
         .project-audio {
             display: none;
         }
@@ -276,16 +281,30 @@
                 });
             }
 
-            const cadenceAudio = document.getElementById('cadence-audio');
+            const cadenceVideo = document.getElementById('cadence-video');
             const cadenceCard = document.getElementById('cadence-card');
-            if (cadenceAudio && cadenceCard) {
+            if (cadenceVideo && cadenceCard) {
+                const cadencePlaylist = [
+                    'projects/cadence/cadence-demo.mp4',
+                    'projects/cadence/cadence-second.mp4'
+                ];
+                let cadenceIndex = 0;
                 cadenceCard.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (cadenceAudio.paused) {
-                        cadenceAudio.play().catch(e => console.log('Play failed:', e));
+                    if (cadenceVideo.muted) {
+                        cadenceVideo.muted = false;
+                    }
+                    if (cadenceVideo.paused) {
+                        cadenceVideo.play().catch(e => console.log('Play failed:', e));
                         cadenceCard.classList.add('audio-enabled');
                     }
+                });
+
+                cadenceVideo.addEventListener('ended', function() {
+                    cadenceIndex = (cadenceIndex + 1) % cadencePlaylist.length;
+                    cadenceVideo.src = cadencePlaylist[cadenceIndex];
+                    cadenceVideo.play().catch(e => console.log('Cadence play failed:', e));
                 });
             }
 
@@ -294,12 +313,24 @@
                 const randomPlaylist = [
                     'projects/random/random_chess.mp4',
                     'projects/random/random_muscleup.mp4',
-                    'projects/random/random_backflip.mp4',                ];
+                    'projects/random/random_backflip.mp4',
+                    'projects/random/random_wheelie.mp4'
+                ];
                 let randomIndex = 0;
+
+                function setRandomSource() {
+                    const src = randomPlaylist[randomIndex];
+                    randomVideo.src = src;
+                    if (src.indexOf('random_wheelie.mp4') !== -1) {
+                        randomVideo.classList.add('project-video-letterbox');
+                    } else {
+                        randomVideo.classList.remove('project-video-letterbox');
+                    }
+                }
 
                 randomVideo.addEventListener('ended', function() {
                     randomIndex = (randomIndex + 1) % randomPlaylist.length;
-                    randomVideo.src = randomPlaylist[randomIndex];
+                    setRandomSource();
                     randomVideo.play().catch(e => console.log('Random play failed:', e));
                 });
             }
@@ -354,8 +385,7 @@
                 <span class="project-desc">AI-assisted learning platform and VS Code extension to analyze AI usage in coding workflows</span>
             </a>
             <a href="#" class="project-card has-audio" id="cadence-card">
-                <img src="projects/cadence/cadence.jpg" alt="Cadence" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
-                <audio src="projects/cadence/cadence-demo.m4a" class="project-audio" id="cadence-audio" preload="none"></audio>
+                <video src="projects/cadence/cadence-demo.mp4" class="project-video" id="cadence-video" autoplay muted playsinline></video>
                 <span class="audio-indicator">
                     <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
