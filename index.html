@@ -153,7 +153,7 @@
         }
 
         .project-card.audio-enabled .audio-indicator {
-            opacity: 0;
+            opacity: 1;
         }
 
         .section-title {
@@ -267,38 +267,44 @@
 
         // Enable audio interactions on click
         window.addEventListener('load', function() {
+            function updateAudioLabel(labelEl, isMuted) {
+                if (labelEl) {
+                    labelEl.textContent = isMuted ? 'Click to hear' : 'Click to mute';
+                }
+            }
+
             const teslaCoilVideo = document.getElementById('tesla-coil-video');
             const teslaCoilCard = document.getElementById('tesla-coil-card');
+            const teslaCoilLabel = document.getElementById('tesla-coil-audio-label');
             if (teslaCoilVideo && teslaCoilCard) {
+                updateAudioLabel(teslaCoilLabel, teslaCoilVideo.muted);
                 teslaCoilCard.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (teslaCoilVideo.muted) {
-                        teslaCoilVideo.muted = false;
-                        teslaCoilVideo.play().catch(e => console.log('Play failed:', e));
-                        teslaCoilCard.classList.add('audio-enabled');
-                    }
+                    teslaCoilVideo.muted = !teslaCoilVideo.muted;
+                    teslaCoilVideo.play().catch(e => console.log('Play failed:', e));
+                    teslaCoilCard.classList.toggle('audio-enabled', !teslaCoilVideo.muted);
+                    updateAudioLabel(teslaCoilLabel, teslaCoilVideo.muted);
                 });
             }
 
             const cadenceVideo = document.getElementById('cadence-video');
             const cadenceCard = document.getElementById('cadence-card');
+            const cadenceLabel = document.getElementById('cadence-audio-label');
             if (cadenceVideo && cadenceCard) {
                 const cadencePlaylist = [
                     'projects/cadence/cadence-demo.mp4',
                     'projects/cadence/cadence-second.mp4'
                 ];
                 let cadenceIndex = 0;
+                updateAudioLabel(cadenceLabel, cadenceVideo.muted);
                 cadenceCard.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (cadenceVideo.muted) {
-                        cadenceVideo.muted = false;
-                    }
-                    if (cadenceVideo.paused) {
-                        cadenceVideo.play().catch(e => console.log('Play failed:', e));
-                        cadenceCard.classList.add('audio-enabled');
-                    }
+                    cadenceVideo.muted = !cadenceVideo.muted;
+                    cadenceVideo.play().catch(e => console.log('Play failed:', e));
+                    cadenceCard.classList.toggle('audio-enabled', !cadenceVideo.muted);
+                    updateAudioLabel(cadenceLabel, cadenceVideo.muted);
                 });
 
                 cadenceVideo.addEventListener('ended', function() {
@@ -390,7 +396,7 @@
                     <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
                     </svg>
-                    Click to hear
+                    <span id="cadence-audio-label">Click to hear</span>
                 </span>
                 <span class="project-title">Cadence</span>
                 <span class="project-desc">Cadence is a hybrid glove + camera MIDI controller turning hand motion into expressive music.</span>
@@ -456,7 +462,7 @@
                     <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
                     </svg>
-                    Click to hear
+                    <span id="tesla-coil-audio-label">Click to hear</span>
                 </span>
                 <span class="project-title">Tesla Coil</span>
                 <span class="project-desc">High-voltage resonant transformer</span>
