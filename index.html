@@ -58,6 +58,7 @@
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 24px;
             margin-bottom: 48px;
+            overflow: visible;
         }
 
         .project-card {
@@ -66,8 +67,10 @@
             gap: 10px;
             text-decoration: none;
             color: inherit;
-            transition: opacity 0.2s;
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s;
             position: relative;
+            transform-origin: center top;
+            z-index: 0;
         }
 
         .project-card:hover {
@@ -81,6 +84,7 @@
             object-fit: cover;
             border-radius: 12px;
             background: #e0e0e0;
+            transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .project-video-letterbox {
@@ -98,6 +102,7 @@
             object-fit: contain;
             border-radius: 12px;
             background: #262421;
+            transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         .project-image-placeholder {
@@ -110,6 +115,22 @@
             justify-content: center;
             color: #999;
             font-size: 0.75rem;
+            transition: box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .project-card:hover {
+                opacity: 1;
+                transform: translateY(-10px) scale(1.18);
+                z-index: 20;
+            }
+
+            .project-card:hover .project-image,
+            .project-card:hover .project-video,
+            .project-card:hover .project-image-contain,
+            .project-card:hover .project-image-placeholder {
+                box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+            }
         }
 
         .project-title {
