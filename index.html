@@ -502,17 +502,20 @@
 
                 card.classList.add('media-ready');
 
-                // Only cycle while the card is on screen.
+                // Start straight away, then let the observer pause it when the
+                // card scrolls off screen. Starting eagerly means the tile still
+                // cycles if the observer never reports (throttled/background).
+                live = true;
+                show(0);
+
                 if ('IntersectionObserver' in window) {
                     new IntersectionObserver(function(entries) {
                         entries.forEach(function(e) {
+                            if (e.isIntersecting === live) return;
                             live = e.isIntersecting;
                             if (live) show(i); else clearTimeout(timer);
                         });
                     }, { rootMargin: '200px 0px' }).observe(card);
-                } else {
-                    live = true;
-                    show(0);
                 }
             });
         });
