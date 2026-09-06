@@ -80,25 +80,23 @@
             display: none;
         }
 
-        /* Media fades up out of a soft blur once it can actually play */
-        .project-video {
-            transition: filter 0.5s ease, opacity 0.5s ease;
+        /* The whole page eases out of a soft blur once it has settled. */
+        .page-blur {
+            filter: blur(12px);
+            opacity: 0.9;
         }
 
+        .container {
+            transition: filter 0.7s ease, opacity 0.7s ease;
+        }
+
+        /* Media that hasn't painted yet reads as a soft plate, not a hole. */
         .project-card:not(.media-ready) .project-video {
-            filter: blur(14px);
-            opacity: 0.75;
-            background: linear-gradient(100deg, #e6e6e6 30%, #f2f2f2 50%, #e6e6e6 70%);
-            background-size: 220% 100%;
-            animation: tile-sheen 1.6s ease-in-out infinite;
-        }
-
-        @keyframes tile-sheen {
-            to { background-position: -120% 0; }
+            background: linear-gradient(140deg, #e9e9e9, #f3f3f3);
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .project-card:not(.media-ready) .project-video { animation: none; }
+            .page-blur { filter: none; opacity: 1; }
         }
 
         .project-card:hover {
@@ -425,10 +423,25 @@
 
             vids.forEach(function(v) { io.observe(v); });
         });
+
+        // Lift the page-wide blur once things have settled. Capped so a slow
+        // asset can never leave the page blurred.
+        (function() {
+            var lifted = false;
+            function reveal() {
+                if (lifted) return;
+                lifted = true;
+                var c = document.querySelector('.container');
+                if (c) c.classList.remove('page-blur');
+            }
+            window.addEventListener('load', function() { setTimeout(reveal, 150); });
+            document.addEventListener('DOMContentLoaded', function() { setTimeout(reveal, 900); });
+            setTimeout(reveal, 2000);
+        })();
     </script>
 </head>
 <body>
-    <div class="container">
+    <div class="container page-blur">
         <div class="wip-banner">
             🚧 This site is a work in progress. Sorry for the mess, more content coming soon!
         </div>
@@ -501,8 +514,8 @@
                 <span class="project-title">Eboard Battery Rebuild</span>
                 <span class="project-desc">Boosted board battery pack rebuild with new 18650 cells</span>
             </a>
-            <a href="#" class="project-card is-hidden">
-                <video preload="none" src="projects/geosnap/geosnap.mp4" class="project-video" autoplay loop muted playsinline></video>
+            <a href="#" class="project-card">
+                <video src="projects/geosnap/geosnap.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Geosnap</span>
                 <span class="project-desc">GeoGuessr x Snapchat-style location guessing game</span>
             </a>
@@ -546,8 +559,8 @@
                 <span class="project-title">Self-Balancing Robot</span>
                 <span class="project-desc">Two-wheeled balancing robot with PID control (sorry, lost video of it working!)</span>
             </a>
-            <a href="#" class="project-card is-hidden">
-                <video preload="none" src="projects/sentimentsense/sentimentsense.mp4" class="project-video" autoplay loop muted playsinline></video>
+            <a href="#" class="project-card">
+                <video src="projects/sentimentsense/sentimentsense.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">SentimentSense</span>
                 <span class="project-desc">AI tool to support neurodivergent communication</span>
             </a>
