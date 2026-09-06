@@ -80,69 +80,31 @@
             display: none;
         }
 
-        /* Loading spinner shown until a tile's video can actually play */
-        .tile-spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 26px;
-            height: 26px;
-            margin: -13px 0 0 -13px;
-            border: 3px solid rgba(0, 0, 0, 0.12);
-            border-top-color: rgba(0, 0, 0, 0.45);
-            border-radius: 50%;
-            animation: tile-spin 0.8s linear infinite;
-            pointer-events: none;
+        /* Media fades up out of a soft blur once it can actually play */
+        .project-video {
+            transition: filter 0.5s ease, opacity 0.5s ease;
         }
 
-        .project-card.media-ready .tile-spinner {
-            display: none;
+        .project-card:not(.media-ready) .project-video {
+            filter: blur(14px);
+            opacity: 0.75;
+            background: linear-gradient(100deg, #e6e6e6 30%, #f2f2f2 50%, #e6e6e6 70%);
+            background-size: 220% 100%;
+            animation: tile-sheen 1.6s ease-in-out infinite;
         }
 
-        @keyframes tile-spin {
-            to { transform: rotate(360deg); }
+        @keyframes tile-sheen {
+            to { background-position: -120% 0; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .tile-spinner { animation-duration: 2.4s; }
+            .project-card:not(.media-ready) .project-video { animation: none; }
         }
 
         .project-card:hover {
             opacity: 0.7;
         }
 
-
-        /* Series tile: stacked media, one shown at a time */
-        .project-card.is-series .series-item {
-            display: none;
-        }
-
-        .project-card.is-series .series-item.is-active {
-            display: block;
-        }
-
-        .series-dots {
-            position: absolute;
-            bottom: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 5px;
-            pointer-events: none;
-        }
-
-        .series-dots i {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-            transition: background 0.3s;
-        }
-
-        .series-dots i.is-on {
-            background: #fff;
-        }
 
         .project-image,
         .project-video {
@@ -430,7 +392,7 @@
         // Load tile videos only as they scroll into view. Eight autoplaying
         // videos at once saturate the connection and every tile stays blank.
         window.addEventListener('load', function() {
-            var vids = document.querySelectorAll('.project-card:not(.is-hidden):not(.is-series) video');
+            var vids = document.querySelectorAll('.project-card:not(.is-hidden) video');
 
             function ready(v) {
                 var card = v.closest('.project-card');
@@ -463,62 +425,6 @@
 
             vids.forEach(function(v) { io.observe(v); });
         });
-
-        // Grouped tile: related projects share one card and play in series.
-        window.addEventListener('load', function() {
-            document.querySelectorAll('.project-card.is-series').forEach(function(card) {
-                var items = card.querySelectorAll('.series-item');
-                var dots = card.querySelectorAll('.series-dots i');
-                if (items.length < 2) return;
-                var i = 0, timer = null, live = false;
-
-                function show(n) {
-                    items.forEach(function(el, k) {
-                        el.classList.toggle('is-active', k === n);
-                        if (el.tagName === 'VIDEO' && k !== n) el.pause();
-                    });
-                    dots.forEach(function(d, k) { d.classList.toggle('is-on', k === n); });
-
-                    var el = items[n];
-                    clearTimeout(timer);
-                    if (el.tagName === 'VIDEO') {
-                        el.preload = 'auto';
-                        el.currentTime = 0;
-                        el.play().catch(function() { timer = setTimeout(next, 2500); });
-                    } else {
-                        timer = setTimeout(next, 4000);
-                    }
-                }
-
-                function next() {
-                    if (!live) return;
-                    i = (i + 1) % items.length;
-                    show(i);
-                }
-
-                items.forEach(function(el) {
-                    if (el.tagName === 'VIDEO') el.addEventListener('ended', next);
-                });
-
-                card.classList.add('media-ready');
-
-                // Start straight away, then let the observer pause it when the
-                // card scrolls off screen. Starting eagerly means the tile still
-                // cycles if the observer never reports (throttled/background).
-                live = true;
-                show(0);
-
-                if ('IntersectionObserver' in window) {
-                    new IntersectionObserver(function(entries) {
-                        entries.forEach(function(e) {
-                            if (e.isIntersecting === live) return;
-                            live = e.isIntersecting;
-                            if (live) show(i); else clearTimeout(timer);
-                        });
-                    }, { rootMargin: '200px 0px' }).observe(card);
-                }
-            });
-        });
     </script>
 </head>
 <body>
@@ -546,7 +452,6 @@
             </a>
             <a href="#" class="project-card">
                 <video preload="none" src="projects/aggie-street-smart/aggie-street-smart.mp4" class="project-video project-video-letterbox" loop muted playsinline></video>
-                <span class="tile-spinner" aria-hidden="true"></span>
                 <span class="project-title">Aggie Street Smart</span>
                 <span class="project-desc">AI bike routing that prioritizes safety over speed</span>
             </a>
@@ -560,8 +465,8 @@
                 <span class="project-title">Library System Development</span>
                 <span class="project-desc">Led development of my high school's library system with advanced search, special logging, and custom pages</span>
             </a>
-            <a href="#" class="project-card is-hidden">
-                <video preload="none" src="projects/bwsi-auvc/auvc_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+            <a href="#" class="project-card">
+                <video src="projects/bwsi-auvc/auvc_video.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">BWSI AUVC</span>
                 <span class="project-desc">MIT Beaver Works Summer Institute - Autonomous Underwater Vehicle Challenge</span>
             </a>
@@ -572,13 +477,11 @@
             </a>
             <a href="https://github.com/machmoon/cognix" class="project-card" target="_blank">
                 <video preload="none" src="projects/cognix/cognix.mp4" class="project-video" loop muted playsinline></video>
-                <span class="tile-spinner" aria-hidden="true"></span>
                 <span class="project-title">CogNix</span>
                 <span class="project-desc">AI-assisted learning platform and VS Code extension to analyze AI usage in coding workflows</span>
             </a>
             <a href="#" class="project-card has-audio" id="cadence-card">
                 <video preload="none" src="projects/cadence/cadence-demo.mp4" class="project-video" id="cadence-video" muted playsinline></video>
-                <span class="tile-spinner" aria-hidden="true"></span>
                 <span class="audio-indicator">
                     <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
@@ -610,7 +513,6 @@
             </a>
             <a href="#" class="project-card">
                 <video preload="none" src="projects/shock-console/console-demo.mp4" class="project-video" id="shock-console-video" muted playsinline></video>
-                <span class="tile-spinner" aria-hidden="true"></span>
                 <span class="project-title">Game Console That Shocks You</span>
                 <span class="project-desc">Like the Wii, but with a shocking twist</span>
             </a>
@@ -619,8 +521,8 @@
                 <span class="project-title">Line Following Robot</span>
                 <span class="project-desc">Arduino with IR sensors for line tracking</span>
             </a>
-            <a href="https://github.com/machmoon/MineRL" class="project-card is-hidden" target="_blank">
-                <video preload="none" src="projects/minerl/minerl_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+            <a href="https://github.com/machmoon/MineRL" class="project-card" target="_blank">
+                <video src="projects/minerl/minerl_video.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">MineRL</span>
                 <span class="project-desc">Reinforcement learning agent trained in Minecraft environment</span>
             </a>
@@ -629,13 +531,10 @@
                 <span class="project-title">Racecar Gym</span>
                 <span class="project-desc">A2C/ResNet50 for autonomous vehicle control in PyBullet simulation</span>
             </a>
-            <a href="#" class="project-card is-series" id="underwater-card">
-                <img src="projects/rov/IMG_4107_new.png" alt="ROV" class="project-image-contain series-item is-active" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
-                <video src="projects/bwsi-auvc/auvc_video.mp4" class="project-video series-item" preload="none" muted playsinline></video>
-                <span class="tile-spinner" aria-hidden="true"></span>
-                <span class="series-dots" aria-hidden="true"><i class="is-on"></i><i></i></span>
-                <span class="project-title">Underwater Robotics</span>
-                <span class="project-desc">6-thruster ROV with IMU, pressure sensors, and tethered Ethernet &middot; MIT BWSI Autonomous Underwater Vehicle Challenge</span>
+            <a href="#" class="project-card">
+                <img src="projects/rov/IMG_4107_new.png" alt="ROV" class="project-image-contain" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <span class="project-title">ROV</span>
+                <span class="project-desc">6-thruster underwater vehicle with IMU, pressure sensors, and tethered Ethernet</span>
             </a>
             <a href="#" class="project-card is-hidden">
                 <div class="project-image-placeholder">No image</div>
@@ -654,7 +553,6 @@
             </a>
             <div class="project-card has-audio" id="tesla-coil-card">
                 <video preload="none" src="projects/tesla-coil/timelapse.mp4" class="project-video" id="tesla-coil-video" loop muted playsinline></video>
-                <span class="tile-spinner" aria-hidden="true"></span>
                 <span class="audio-indicator">
                     <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
@@ -675,19 +573,16 @@
         <div class="projects-grid">
             <a href="#" class="project-card">
                 <video preload="none" src="projects/random/random_hockey.mp4" class="project-video" loop muted playsinline></video>
-                <span class="tile-spinner" aria-hidden="true"></span>
                 <span class="project-title">Hockey</span>
                 <span class="project-desc">Playing and refereeing hockey</span>
             </a>
             <a href="#" class="project-card">
                 <video preload="none" src="projects/skiing/skiing_video.mp4" class="project-video" loop muted playsinline></video>
-                <span class="tile-spinner" aria-hidden="true"></span>
                 <span class="project-title">Skiing</span>
                 <span class="project-desc">Lake Tahoe!!!</span>
             </a>
             <a href="#" class="project-card">
                 <video preload="none" src="projects/random/random_chess.mp4" class="project-video" id="random-video" muted playsinline></video>
-                <span class="tile-spinner" aria-hidden="true"></span>
                 <span class="project-title">Random</span>
                 <span class="project-desc">From chess to wheelies to A LOT of fails.</span>
             </a>
