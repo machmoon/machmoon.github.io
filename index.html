@@ -80,6 +80,33 @@
             display: none;
         }
 
+        /* Loading spinner shown until a tile's video can actually play */
+        .tile-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 26px;
+            height: 26px;
+            margin: -13px 0 0 -13px;
+            border: 3px solid rgba(0, 0, 0, 0.12);
+            border-top-color: rgba(0, 0, 0, 0.45);
+            border-radius: 50%;
+            animation: tile-spin 0.8s linear infinite;
+            pointer-events: none;
+        }
+
+        .project-card.media-ready .tile-spinner {
+            display: none;
+        }
+
+        @keyframes tile-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .tile-spinner { animation-duration: 2.4s; }
+        }
+
         .project-card:hover {
             opacity: 0.7;
         }
@@ -366,6 +393,43 @@
                 });
             }
         });
+
+        // Load tile videos only as they scroll into view. Eight autoplaying
+        // videos at once saturate the connection and every tile stays blank.
+        window.addEventListener('load', function() {
+            var vids = document.querySelectorAll('.project-card:not(.is-hidden) video');
+
+            function ready(v) {
+                var card = v.closest('.project-card');
+                if (card) card.classList.add('media-ready');
+            }
+
+            vids.forEach(function(v) {
+                if (v.readyState >= 3) ready(v);
+                v.addEventListener('loadeddata', function() { ready(v); });
+                v.addEventListener('playing', function() { ready(v); });
+                v.addEventListener('error', function() { ready(v); });
+            });
+
+            if (!('IntersectionObserver' in window)) {
+                vids.forEach(function(v) { v.preload = 'auto'; v.play().catch(function(){}); });
+                return;
+            }
+
+            var io = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    var v = entry.target;
+                    if (entry.isIntersecting) {
+                        v.preload = 'auto';
+                        v.play().catch(function(){});
+                    } else if (!v.paused) {
+                        v.pause();
+                    }
+                });
+            }, { rootMargin: '200px 0px' });
+
+            vids.forEach(function(v) { io.observe(v); });
+        });
     </script>
 </head>
 <body>
@@ -392,7 +456,8 @@
                 <span class="project-desc">STM32G4 + ESP32 array with 100kHz ADC and TDOA localization</span>
             </a>
             <a href="#" class="project-card">
-                <video src="projects/aggie-street-smart/aggie-street-smart.mp4" class="project-video project-video-letterbox" autoplay loop muted playsinline></video>
+                <video preload="none" src="projects/aggie-street-smart/aggie-street-smart.mp4" class="project-video project-video-letterbox" loop muted playsinline>
+                <span class="tile-spinner" aria-hidden="true"></span></video>
                 <span class="project-title">Aggie Street Smart</span>
                 <span class="project-desc">AI bike routing that prioritizes safety over speed</span>
             </a>
@@ -417,12 +482,14 @@
                 <span class="project-desc">Deep reinforcement learning for classic control problem</span>
             </a>
             <a href="https://github.com/machmoon/cognix" class="project-card" target="_blank">
-                <video src="projects/cognix/cognix.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video preload="none" src="projects/cognix/cognix.mp4" class="project-video" loop muted playsinline>
+                <span class="tile-spinner" aria-hidden="true"></span></video>
                 <span class="project-title">CogNix</span>
                 <span class="project-desc">AI-assisted learning platform and VS Code extension to analyze AI usage in coding workflows</span>
             </a>
             <a href="#" class="project-card has-audio" id="cadence-card">
-                <video src="projects/cadence/cadence-demo.mp4" class="project-video" id="cadence-video" autoplay muted playsinline></video>
+                <video preload="none" src="projects/cadence/cadence-demo.mp4" class="project-video" id="cadence-video" muted playsinline>
+                <span class="tile-spinner" aria-hidden="true"></span></video>
                 <span class="audio-indicator">
                     <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
@@ -453,7 +520,8 @@
                 <span class="project-desc">Puzzle game where each press flips a light and its neighbors. The goal: Lights out!</span>
             </a>
             <a href="#" class="project-card">
-                <video src="projects/shock-console/console-demo.mp4" class="project-video" id="shock-console-video" autoplay muted playsinline></video>
+                <video preload="none" src="projects/shock-console/console-demo.mp4" class="project-video" id="shock-console-video" muted playsinline>
+                <span class="tile-spinner" aria-hidden="true"></span></video>
                 <span class="project-title">Game Console That Shocks You</span>
                 <span class="project-desc">Like the Wii, but with a shocking twist</span>
             </a>
@@ -493,7 +561,8 @@
                 <span class="project-desc">AI tool to support neurodivergent communication</span>
             </a>
             <div class="project-card has-audio" id="tesla-coil-card">
-                <video src="projects/tesla-coil/timelapse.mp4" class="project-video" id="tesla-coil-video" autoplay loop muted playsinline></video>
+                <video preload="none" src="projects/tesla-coil/timelapse.mp4" class="project-video" id="tesla-coil-video" loop muted playsinline>
+                <span class="tile-spinner" aria-hidden="true"></span></video>
                 <span class="audio-indicator">
                     <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
@@ -513,17 +582,20 @@
         <p class="section-title">Personal</p>
         <div class="projects-grid">
             <a href="#" class="project-card">
-                <video src="projects/random/random_hockey.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video preload="none" src="projects/random/random_hockey.mp4" class="project-video" loop muted playsinline>
+                <span class="tile-spinner" aria-hidden="true"></span></video>
                 <span class="project-title">Hockey</span>
                 <span class="project-desc">Playing and refereeing hockey</span>
             </a>
             <a href="#" class="project-card">
-                <video src="projects/skiing/skiing_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video preload="none" src="projects/skiing/skiing_video.mp4" class="project-video" loop muted playsinline>
+                <span class="tile-spinner" aria-hidden="true"></span></video>
                 <span class="project-title">Skiing</span>
                 <span class="project-desc">Lake Tahoe!!!</span>
             </a>
             <a href="#" class="project-card">
-                <video src="projects/random/random_chess.mp4" class="project-video" id="random-video" autoplay muted playsinline></video>
+                <video preload="none" src="projects/random/random_chess.mp4" class="project-video" id="random-video" muted playsinline>
+                <span class="tile-spinner" aria-hidden="true"></span></video>
                 <span class="project-title">Random</span>
                 <span class="project-desc">From chess to wheelies to A LOT of fails.</span>
             </a>
