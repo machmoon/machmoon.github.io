@@ -111,6 +111,39 @@
             opacity: 0.7;
         }
 
+
+        /* Series tile: stacked media, one shown at a time */
+        .project-card.is-series .series-item {
+            display: none;
+        }
+
+        .project-card.is-series .series-item.is-active {
+            display: block;
+        }
+
+        .series-dots {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+            pointer-events: none;
+        }
+
+        .series-dots i {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+            transition: background 0.3s;
+        }
+
+        .series-dots i.is-on {
+            background: #fff;
+        }
+
         .project-image,
         .project-video {
             width: 100%;
@@ -397,7 +430,7 @@
         // Load tile videos only as they scroll into view. Eight autoplaying
         // videos at once saturate the connection and every tile stays blank.
         window.addEventListener('load', function() {
-            var vids = document.querySelectorAll('.project-card:not(.is-hidden) video');
+            var vids = document.querySelectorAll('.project-card:not(.is-hidden):not(.is-series) video');
 
             function ready(v) {
                 var card = v.closest('.project-card');
@@ -429,6 +462,59 @@
             }, { rootMargin: '200px 0px' });
 
             vids.forEach(function(v) { io.observe(v); });
+        });
+
+        // Grouped tile: related projects share one card and play in series.
+        window.addEventListener('load', function() {
+            document.querySelectorAll('.project-card.is-series').forEach(function(card) {
+                var items = card.querySelectorAll('.series-item');
+                var dots = card.querySelectorAll('.series-dots i');
+                if (items.length < 2) return;
+                var i = 0, timer = null, live = false;
+
+                function show(n) {
+                    items.forEach(function(el, k) {
+                        el.classList.toggle('is-active', k === n);
+                        if (el.tagName === 'VIDEO' && k !== n) el.pause();
+                    });
+                    dots.forEach(function(d, k) { d.classList.toggle('is-on', k === n); });
+
+                    var el = items[n];
+                    clearTimeout(timer);
+                    if (el.tagName === 'VIDEO') {
+                        el.preload = 'auto';
+                        el.currentTime = 0;
+                        el.play().catch(function() { timer = setTimeout(next, 2500); });
+                    } else {
+                        timer = setTimeout(next, 4000);
+                    }
+                }
+
+                function next() {
+                    if (!live) return;
+                    i = (i + 1) % items.length;
+                    show(i);
+                }
+
+                items.forEach(function(el) {
+                    if (el.tagName === 'VIDEO') el.addEventListener('ended', next);
+                });
+
+                card.classList.add('media-ready');
+
+                // Only cycle while the card is on screen.
+                if ('IntersectionObserver' in window) {
+                    new IntersectionObserver(function(entries) {
+                        entries.forEach(function(e) {
+                            live = e.isIntersecting;
+                            if (live) show(i); else clearTimeout(timer);
+                        });
+                    }, { rootMargin: '200px 0px' }).observe(card);
+                } else {
+                    live = true;
+                    show(0);
+                }
+            });
         });
     </script>
 </head>
@@ -540,10 +626,13 @@
                 <span class="project-title">Racecar Gym</span>
                 <span class="project-desc">A2C/ResNet50 for autonomous vehicle control in PyBullet simulation</span>
             </a>
-            <a href="#" class="project-card">
-                <img src="projects/rov/IMG_4107_new.png" alt="ROV" class="project-image-contain" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
-                <span class="project-title">ROV</span>
-                <span class="project-desc">6-thruster underwater vehicle with IMU, pressure sensors, and tethered Ethernet</span>
+            <a href="#" class="project-card is-series" id="underwater-card">
+                <img src="projects/rov/IMG_4107_new.png" alt="ROV" class="project-image-contain series-item is-active" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <video src="projects/bwsi-auvc/auvc_video.mp4" class="project-video series-item" preload="none" muted playsinline></video>
+                <span class="tile-spinner" aria-hidden="true"></span>
+                <span class="series-dots" aria-hidden="true"><i class="is-on"></i><i></i></span>
+                <span class="project-title">Underwater Robotics</span>
+                <span class="project-desc">6-thruster ROV with IMU, pressure sensors, and tethered Ethernet &middot; MIT BWSI Autonomous Underwater Vehicle Challenge</span>
             </a>
             <a href="#" class="project-card is-hidden">
                 <div class="project-image-placeholder">No image</div>
