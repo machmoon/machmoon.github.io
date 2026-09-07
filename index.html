@@ -424,9 +424,9 @@
             vids.forEach(function(v) { io.observe(v); });
         });
 
-        // Hold the page-wide blur until the tiles you can actually see have a
-        // frame to show. Above-the-fold videos are fetched eagerly; the rest
-        // are left to the scroll observer.
+        // Every tile has a poster now, so the page has something real to show
+        // as soon as images decode. Lift the blur then, capped so a slow asset
+        // can't strand it.
         (function() {
             var lifted = false;
             function reveal() {
@@ -435,40 +435,12 @@
                 var c = document.querySelector('.container');
                 if (c) c.classList.remove('page-blur');
             }
-
-            document.addEventListener('DOMContentLoaded', function() {
-                var vh = window.innerHeight || 800;
-                var above = [].slice.call(
-                    document.querySelectorAll('.project-card:not(.is-hidden) video')
-                ).filter(function(v) {
-                    return v.getBoundingClientRect().top < vh;
-                });
-
-                if (!above.length) { reveal(); return; }
-
-                var pending = above.length;
-                function done() {
-                    if (--pending <= 0) reveal();
-                }
-
-                above.forEach(function(v) {
-                    if (v.readyState >= 3) { done(); return; }
-                    var fired = false;
-                    function once() {
-                        if (fired) return;
-                        fired = true;
-                        done();
-                    }
-                    v.addEventListener('canplay', once);
-                    v.addEventListener('loadeddata', once);
-                    v.addEventListener('error', once);
-                    v.preload = 'auto';
-                    v.load();
-                });
-
-                // Never strand the page behind a slow asset.
-                setTimeout(reveal, 6000);
-            });
+            if (document.readyState === 'complete') {
+                setTimeout(reveal, 80);
+            } else {
+                window.addEventListener('load', function() { setTimeout(reveal, 80); });
+            }
+            setTimeout(reveal, 2500);
         })();
     </script>
 </head>
@@ -496,37 +468,37 @@
                 <span class="project-desc">STM32G4 + ESP32 array with 100kHz ADC and TDOA localization</span>
             </a>
             <a href="#" class="project-card">
-                <video preload="none" src="projects/aggie-street-smart/aggie-street-smart.mp4" class="project-video project-video-letterbox" loop muted playsinline></video>
+                <video poster="projects/aggie-street-smart/aggie-street-smart.poster.jpg" preload="none" src="projects/aggie-street-smart/aggie-street-smart.mp4" class="project-video project-video-letterbox" loop muted playsinline></video>
                 <span class="project-title">Aggie Street Smart</span>
                 <span class="project-desc">AI bike routing that prioritizes safety over speed</span>
             </a>
             <a href="#" class="project-card is-hidden">
-                <img loading="lazy" src="projects/rover/IMG_3649.png" alt="Autonomous Rover" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <img loading="lazy" src="projects/rover/IMG_3649.jpg" alt="Autonomous Rover" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Autonomous Rover</span>
                 <span class="project-desc">PID-controlled wheeled rover with solar panel and closed-loop motion control</span>
             </a>
             <a href="#" class="project-card is-hidden">
-                <img loading="lazy" src="projects/BentleyLibrary/IMG_6368.PNG" alt="BentleyLibrary" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <img loading="lazy" src="projects/BentleyLibrary/IMG_6368.jpg" alt="BentleyLibrary" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Library System Development</span>
                 <span class="project-desc">Led development of my high school's library system with advanced search, special logging, and custom pages</span>
             </a>
             <a href="#" class="project-card">
-                <video src="projects/bwsi-auvc/auvc_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video poster="projects/bwsi-auvc/auvc_video.poster.jpg" src="projects/bwsi-auvc/auvc_video.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">BWSI AUVC</span>
                 <span class="project-desc">MIT Beaver Works Summer Institute - Autonomous Underwater Vehicle Challenge</span>
             </a>
             <a href="https://github.com/machmoon/CartPole" class="project-card is-hidden" target="_blank">
-                <video preload="none" src="projects/cartpole/cartpole_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video poster="projects/cartpole/cartpole_video.poster.jpg" preload="none" src="projects/cartpole/cartpole_video.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">CartPole RL</span>
                 <span class="project-desc">Deep reinforcement learning for classic control problem</span>
             </a>
             <a href="https://github.com/machmoon/cognix" class="project-card" target="_blank">
-                <video preload="none" src="projects/cognix/cognix.mp4" class="project-video" loop muted playsinline></video>
+                <video poster="projects/cognix/cognix.poster.jpg" preload="none" src="projects/cognix/cognix.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">CogNix</span>
                 <span class="project-desc">AI-assisted learning platform and VS Code extension to analyze AI usage in coding workflows</span>
             </a>
             <a href="#" class="project-card has-audio" id="cadence-card">
-                <video preload="none" src="projects/cadence/cadence-demo.mp4" class="project-video" id="cadence-video" muted playsinline></video>
+                <video poster="projects/cadence/cadence-demo.poster.jpg" preload="none" src="projects/cadence/cadence-demo.mp4" class="project-video" id="cadence-video" muted playsinline></video>
                 <span class="audio-indicator">
                     <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
@@ -537,37 +509,37 @@
                 <span class="project-desc">Cadence is a hybrid glove + camera MIDI controller turning hand motion into expressive music.</span>
             </a>
             <a href="#" class="project-card is-hidden">
-                <video preload="none" src="projects/dactyl-manuform/timelapse.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video poster="projects/dactyl-manuform/timelapse.poster.jpg" preload="none" src="projects/dactyl-manuform/timelapse.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Dactyl Manuform Keyboard</span>
                 <span class="project-desc">Handwired split ergonomic keyboard build, shown in a soldering timelapse</span>
             </a>
             <a href="#" class="project-card is-hidden">
-                <img loading="lazy" src="projects/eboard/IMG_3629.png" alt="Eboard Battery" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <img loading="lazy" src="projects/eboard/IMG_3629.jpg" alt="Eboard Battery" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Eboard Battery Rebuild</span>
                 <span class="project-desc">Boosted board battery pack rebuild with new 18650 cells</span>
             </a>
             <a href="#" class="project-card">
-                <video src="projects/geosnap/geosnap.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video poster="projects/geosnap/geosnap.poster.jpg" src="projects/geosnap/geosnap.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Geosnap</span>
                 <span class="project-desc">GeoGuessr x Snapchat-style location guessing game</span>
             </a>
             <a href="#" class="project-card is-hidden">
-                <video preload="none" src="projects/lightsout/lightsout_screen.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video poster="projects/lightsout/lightsout_screen.poster.jpg" preload="none" src="projects/lightsout/lightsout_screen.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Lights Out</span>
                 <span class="project-desc">Puzzle game where each press flips a light and its neighbors. The goal: Lights out!</span>
             </a>
             <a href="#" class="project-card">
-                <video preload="none" src="projects/shock-console/console-demo.mp4" class="project-video" id="shock-console-video" muted playsinline></video>
+                <video poster="projects/shock-console/console-demo.poster.jpg" preload="none" src="projects/shock-console/console-demo.mp4" class="project-video" id="shock-console-video" muted playsinline></video>
                 <span class="project-title">Game Console That Shocks You</span>
                 <span class="project-desc">Like the Wii, but with a shocking twist</span>
             </a>
             <a href="#" class="project-card is-hidden">
-                <video preload="none" src="projects/line-bot/linebot_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video poster="projects/line-bot/linebot_video.poster.jpg" preload="none" src="projects/line-bot/linebot_video.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Line Following Robot</span>
                 <span class="project-desc">Arduino with IR sensors for line tracking</span>
             </a>
             <a href="https://github.com/machmoon/MineRL" class="project-card" target="_blank">
-                <video src="projects/minerl/minerl_video.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video poster="projects/minerl/minerl_video.poster.jpg" src="projects/minerl/minerl_video.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">MineRL</span>
                 <span class="project-desc">Reinforcement learning agent trained in Minecraft environment</span>
             </a>
@@ -577,7 +549,7 @@
                 <span class="project-desc">A2C/ResNet50 for autonomous vehicle control in PyBullet simulation</span>
             </a>
             <a href="#" class="project-card">
-                <img src="projects/rov/IMG_4107_new.png" alt="ROV" class="project-image-contain" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <img src="projects/rov/IMG_4107_new.jpg" alt="ROV" class="project-image-contain" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">ROV</span>
                 <span class="project-desc">6-thruster underwater vehicle with IMU, pressure sensors, and tethered Ethernet</span>
             </a>
@@ -587,17 +559,17 @@
                 <span class="project-desc">6-DoF robotic arm with YOLO on a rail</span>
             </a>
             <a href="#" class="project-card is-hidden">
-                <img loading="lazy" src="projects/balancing-robot/IMG_0800.png" alt="Self-Balancing Robot" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <img loading="lazy" src="projects/balancing-robot/IMG_0800.jpg" alt="Self-Balancing Robot" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Self-Balancing Robot</span>
                 <span class="project-desc">Two-wheeled balancing robot with PID control (sorry, lost video of it working!)</span>
             </a>
             <a href="#" class="project-card">
-                <video src="projects/sentimentsense/sentimentsense.mp4" class="project-video" autoplay loop muted playsinline></video>
+                <video poster="projects/sentimentsense/sentimentsense.poster.jpg" src="projects/sentimentsense/sentimentsense.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">SentimentSense</span>
                 <span class="project-desc">AI tool to support neurodivergent communication</span>
             </a>
             <div class="project-card has-audio" id="tesla-coil-card">
-                <video preload="none" src="projects/tesla-coil/timelapse.mp4" class="project-video" id="tesla-coil-video" loop muted playsinline></video>
+                <video poster="projects/tesla-coil/timelapse.poster.jpg" preload="none" src="projects/tesla-coil/timelapse.mp4" class="project-video" id="tesla-coil-video" loop muted playsinline></video>
                 <span class="audio-indicator">
                     <svg class="audio-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
@@ -608,7 +580,7 @@
                 <span class="project-desc">High-voltage resonant transformer</span>
             </div>
             <a href="#" class="project-card is-hidden">
-                <img loading="lazy" src="projects/vtol/vtol.png" alt="VTOL" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
+                <img loading="lazy" src="projects/vtol/vtol.jpg" alt="VTOL" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">VTOL</span>
                 <span class="project-desc">Vertical take-off and landing aircraft prototype</span>
             </a>
@@ -617,17 +589,17 @@
         <p class="section-title">Personal</p>
         <div class="projects-grid">
             <a href="#" class="project-card">
-                <video preload="none" src="projects/random/random_hockey.mp4" class="project-video" loop muted playsinline></video>
+                <video poster="projects/random/random_hockey.poster.jpg" preload="none" src="projects/random/random_hockey.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">Hockey</span>
                 <span class="project-desc">Playing and refereeing hockey</span>
             </a>
             <a href="#" class="project-card">
-                <video preload="none" src="projects/skiing/skiing_video.mp4" class="project-video" loop muted playsinline></video>
+                <video poster="projects/skiing/skiing_video.poster.jpg" preload="none" src="projects/skiing/skiing_video.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">Skiing</span>
                 <span class="project-desc">Lake Tahoe!!!</span>
             </a>
             <a href="#" class="project-card">
-                <video preload="none" src="projects/random/random_chess.mp4" class="project-video" id="random-video" muted playsinline></video>
+                <video poster="projects/random/random_chess.poster.jpg" preload="none" src="projects/random/random_chess.mp4" class="project-video" id="random-video" muted playsinline></video>
                 <span class="project-title">Random</span>
                 <span class="project-desc">From chess to wheelies to A LOT of fails.</span>
             </a>
