@@ -424,8 +424,9 @@
             vids.forEach(function(v) { io.observe(v); });
         });
 
-        // Lift the page-wide blur once things have settled. Capped so a slow
-        // asset can never leave the page blurred.
+        // Hold the page-wide blur until the tiles you can actually see have a
+        // frame to show. Above-the-fold videos are fetched eagerly; the rest
+        // are left to the scroll observer.
         (function() {
             var lifted = false;
             function reveal() {
@@ -434,9 +435,40 @@
                 var c = document.querySelector('.container');
                 if (c) c.classList.remove('page-blur');
             }
-            window.addEventListener('load', function() { setTimeout(reveal, 150); });
-            document.addEventListener('DOMContentLoaded', function() { setTimeout(reveal, 900); });
-            setTimeout(reveal, 2000);
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var vh = window.innerHeight || 800;
+                var above = [].slice.call(
+                    document.querySelectorAll('.project-card:not(.is-hidden) video')
+                ).filter(function(v) {
+                    return v.getBoundingClientRect().top < vh;
+                });
+
+                if (!above.length) { reveal(); return; }
+
+                var pending = above.length;
+                function done() {
+                    if (--pending <= 0) reveal();
+                }
+
+                above.forEach(function(v) {
+                    if (v.readyState >= 3) { done(); return; }
+                    var fired = false;
+                    function once() {
+                        if (fired) return;
+                        fired = true;
+                        done();
+                    }
+                    v.addEventListener('canplay', once);
+                    v.addEventListener('loadeddata', once);
+                    v.addEventListener('error', once);
+                    v.preload = 'auto';
+                    v.load();
+                });
+
+                // Never strand the page behind a slow asset.
+                setTimeout(reveal, 6000);
+            });
         })();
     </script>
 </head>
