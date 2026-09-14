@@ -50,6 +50,11 @@
             line-height: 1.6;
         }
 
+        /* While the date is hidden, the location line keeps the gap above Projects. */
+        .location:has(+ .last-updated[hidden]) {
+            margin-bottom: 48px;
+        }
+
         .last-updated {
             font-size: 0.85rem;
             color: #999;
@@ -468,6 +473,14 @@
             vids.forEach(function(v) { io.observe(v); });
         });
 
+        // Show "Last updated" only once the site has gone a few months without one.
+        document.addEventListener('DOMContentLoaded', function() {
+            var el = document.querySelector('.last-updated[data-updated]');
+            if (!el) return;
+            var age = Date.now() - new Date(el.dataset.updated + 'T00:00:00').getTime();
+            if (age > 90 * 24 * 3600 * 1000) el.hidden = false;
+        });
+
         // Every tile has a poster now, so the page has something real to show
         // as soon as images decode. Lift the blur then, capped so a slow asset
         // can't strand it.
@@ -492,10 +505,10 @@
     <div class="container page-blur">
         <h1>Patrick Liu</h1>
         <p class="subtitle">EE @ UC Santa Barbara</p>
-        <p class="subtitle">Making UCSB's first hardware hackathon</p>
+        <p class="subtitle">Making UCSB's First Hardware Hackathon</p>
         <p class="subtitle">Founded UCSB's Underwater Vehicles Team</p>
         <p class="location">Bay Area, CA</p>
-        <p class="last-updated">Last updated May 30th, 2026</p>
+        <p class="last-updated" data-updated="2026-09-14" hidden>Last updated September 2026</p>
 
         <p class="section-title">Projects</p>
         <div class="projects-grid">
@@ -508,6 +521,11 @@
                 <img src="projects/asg/IMG_2150.tile.jpg" data-full-src="projects/asg/IMG_2150.jpg" alt="Acoustic Sensing Grid" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Acoustic Sensing Grid</span>
                 <span class="project-desc">STM32G4 + ESP32 array with 100kHz ADC and TDOA localization</span>
+            </a>
+            <a href="https://github.com/machmoon/silkscreen" class="project-card" target="_blank" data-lightbox>
+                <video poster="projects/ada/ada.poster.jpg" preload="none" src="projects/ada/ada.tile.mp4" data-full-src="projects/ada/ada.mp4" class="project-video" loop muted playsinline></video>
+                <span class="project-title">Ada</span>
+                <span class="project-desc">AI HWE. Hopefully one day I can start a company</span>
             </a>
             <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/aggie-street-smart/aggie-street-smart.poster.jpg" preload="none" src="projects/aggie-street-smart/aggie-street-smart.tile.mp4" data-full-src="projects/aggie-street-smart/aggie-street-smart.mp4" class="project-video project-video-letterbox" loop muted playsinline></video>
@@ -523,11 +541,6 @@
                 <img loading="lazy" src="projects/BentleyLibrary/IMG_6368.jpg" alt="BentleyLibrary" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Library System Development</span>
                 <span class="project-desc">Led development of my high school's library system with advanced search, special logging, and custom pages</span>
-            </a>
-            <a href="#" class="project-card" data-lightbox>
-                <video preload="none" poster="projects/bwsi-auvc/auvc_video.poster.jpg" src="projects/bwsi-auvc/auvc_video.tile.mp4" data-full-src="projects/bwsi-auvc/auvc_video.mp4" class="project-video" loop muted playsinline></video>
-                <span class="project-title">BWSI AUVC</span>
-                <span class="project-desc">MIT Beaver Works Summer Institute - Autonomous Underwater Vehicle Challenge</span>
             </a>
             <a href="https://github.com/machmoon/CartPole" class="project-card is-hidden" target="_blank">
                 <video poster="projects/cartpole/cartpole_video.poster.jpg" preload="none" src="projects/cartpole/cartpole_video.mp4" class="project-video" loop muted playsinline></video>
@@ -597,9 +610,9 @@
                 <span class="project-desc">A2C/ResNet50 for autonomous vehicle control in PyBullet simulation</span>
             </a>
             <a href="#" class="project-card" data-lightbox>
-                <img src="projects/rov/IMG_4107_new.tile.jpg" data-full-src="projects/rov/IMG_4107_new.jpg" alt="ROV" class="project-image-contain" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
-                <span class="project-title">ROV</span>
-                <span class="project-desc">6-thruster underwater vehicle with IMU, pressure sensors, and tethered Ethernet</span>
+                <video poster="projects/underwater/underwater.poster.jpg" preload="none" src="projects/underwater/underwater.tile.mp4" data-full-src="projects/underwater/underwater.mp4" class="project-video" loop muted playsinline></video>
+                <span class="project-title">Underwater Robotics</span>
+                <span class="project-desc">MIT BWSI AUVC, a 6-thruster tethered ROV, and ROV 2</span>
             </a>
             <a href="#" class="project-card is-hidden">
                 <div class="project-image-placeholder">No image</div>
@@ -636,11 +649,6 @@
 
         <p class="section-title">Personal</p>
         <div class="projects-grid">
-            <a href="https://github.com/machmoon/silkscreen" class="project-card" target="_blank" data-lightbox>
-                <video poster="projects/ada/ada.poster.jpg" preload="none" src="projects/ada/ada.tile.mp4" data-full-src="projects/ada/ada.mp4" class="project-video" loop muted playsinline></video>
-                <span class="project-title">Ada</span>
-                <span class="project-desc">AI HWE. Hopefully one day I can start a company</span>
-            </a>
             <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/random/random_hockey.poster.jpg" preload="none" src="projects/random/random_hockey.tile.mp4" data-full-src="projects/random/random_hockey.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">Hockey</span>
