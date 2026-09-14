@@ -142,6 +142,8 @@
         .lightbox-panel {
             display: flex;
             flex-direction: column;
+            width: fit-content;
+            max-width: 100%;
             gap: 14px;
             padding: 18px;
             border-radius: 28px;
@@ -163,15 +165,20 @@
             background: #000;
             object-fit: contain;
         }
+        /* The caption takes the media's width and wraps, rather than the
+           panel stretching to fit one long line of text. */
         .lightbox-caption {
             display: flex;
             align-items: baseline;
             justify-content: space-between;
             gap: 16px;
-            flex-wrap: wrap;
+            width: min-content;
+            min-width: 100%;
+            max-width: min(92vw - 36px, 720px);
         }
+        .lightbox-caption > div { flex: 1 1 auto; min-width: 0; }
         .lightbox-title { font-size: 1rem; font-weight: 600; color: #1a1a1a; }
-        .lightbox-desc { font-size: 0.85rem; color: #555; line-height: 1.45; flex: 1 1 260px; }
+        .lightbox-desc { font-size: 0.85rem; color: #555; line-height: 1.45; }
         .lightbox-link { font-size: 0.85rem; color: #1a1a1a; text-decoration: none; white-space: nowrap; }
         .lightbox-link:hover { text-decoration: underline; }
         .lightbox[open] { animation: lightbox-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
