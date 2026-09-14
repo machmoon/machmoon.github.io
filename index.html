@@ -451,6 +451,8 @@
                 v.addEventListener('loadeddata', function() { ready(v); });
                 v.addEventListener('playing', function() { ready(v); });
                 v.addEventListener('error', function() { ready(v); });
+                // Some browsers stop at the end despite loop; restart by hand.
+                if (v.loop) v.addEventListener('ended', function() { v.currentTime = 0; v.play().catch(function(){}); });
             });
 
             if (!('IntersectionObserver' in window)) {
@@ -732,6 +734,7 @@
                             });
                         } else {
                             el.loop = true;
+                            el.addEventListener('ended', function() { el.currentTime = 0; el.play().catch(function(){}); });
                         }
                     } else {
                         el = document.createElement('img');
