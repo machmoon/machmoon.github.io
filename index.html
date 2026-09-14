@@ -115,15 +115,72 @@
             background: #000;
         }
 
-        /* A phone-recorded tile keeps the recording's own shape, so nothing is
-           cropped off the top or bottom. The ratio matches
-           projects/voyage/voyage.mp4 (720x1566), so there are no bars at all;
-           `contain` and the black plate only absorb sub-pixel rounding, and the
-           recording's own edges are already black. */
-        .project-video-portrait {
-            aspect-ratio: 720 / 1566;
-            object-fit: contain;
+        /* Tiles stay square; a tap opens the full media in the lightbox below. */
+        .project-card[data-lightbox] { cursor: zoom-in; }
+
+        /* Lightbox: a native <dialog> (Escape, focus trap and backdrop for
+           free) styled as frosted glass. Structure follows basicLightbox
+           (electerious/basicLightbox, src/scripts/main.js): one overlay, one
+           placeholder for the media, close on a click outside the content. */
+        .lightbox {
+            /* The page resets margins, which removes the UA's margin:auto centering. */
+            position: fixed;
+            inset: 0;
+            margin: auto;
+            border: 0;
+            padding: 0;
+            background: transparent;
+            max-width: min(92vw, 1100px);
+            max-height: 92vh;
+            overflow: visible;
+        }
+        .lightbox::backdrop {
+            background: rgba(20, 20, 24, 0.35);
+            -webkit-backdrop-filter: blur(28px) saturate(160%);
+            backdrop-filter: blur(28px) saturate(160%);
+        }
+        .lightbox-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 18px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.62);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            backdrop-filter: blur(40px) saturate(180%);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+                        inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+        }
+        .lightbox-media {
+            display: block;
+            max-width: 100%;
+            max-height: 72vh;
+            width: auto;
+            height: auto;
+            margin: 0 auto;
+            border-radius: 16px;
             background: #000;
+            object-fit: contain;
+        }
+        .lightbox-caption {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .lightbox-title { font-size: 1rem; font-weight: 600; color: #1a1a1a; }
+        .lightbox-desc { font-size: 0.85rem; color: #555; line-height: 1.45; flex: 1 1 260px; }
+        .lightbox-link { font-size: 0.85rem; color: #1a1a1a; text-decoration: none; white-space: nowrap; }
+        .lightbox-link:hover { text-decoration: underline; }
+        .lightbox[open] { animation: lightbox-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @keyframes lightbox-in {
+            from { transform: scale(0.94); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .lightbox[open] { animation: none; }
         }
 
         .project-audio {
@@ -461,17 +518,17 @@
 
         <p class="section-title">Projects</p>
         <div class="projects-grid">
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <img src="projects/8bit-computer/IMG_5845.JPG" alt="8-Bit Computer" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">8-Bit Computer</span>
                 <span class="project-desc">Discrete TTL logic CPU with custom instruction set and microcode control</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <img src="projects/asg/IMG_2150.jpg" alt="Acoustic Sensing Grid" class="project-image" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">Acoustic Sensing Grid</span>
                 <span class="project-desc">STM32G4 + ESP32 array with 100kHz ADC and TDOA localization</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/aggie-street-smart/aggie-street-smart.poster.jpg" preload="none" src="projects/aggie-street-smart/aggie-street-smart.mp4" class="project-video project-video-letterbox" loop muted playsinline></video>
                 <span class="project-title">Aggie Street Smart</span>
                 <span class="project-desc">AI bike routing that prioritizes safety over speed</span>
@@ -486,7 +543,7 @@
                 <span class="project-title">Library System Development</span>
                 <span class="project-desc">Led development of my high school's library system with advanced search, special logging, and custom pages</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/bwsi-auvc/auvc_video.poster.jpg" src="projects/bwsi-auvc/auvc_video.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">BWSI AUVC</span>
                 <span class="project-desc">MIT Beaver Works Summer Institute - Autonomous Underwater Vehicle Challenge</span>
@@ -496,7 +553,7 @@
                 <span class="project-title">CartPole RL</span>
                 <span class="project-desc">Deep reinforcement learning for classic control problem</span>
             </a>
-            <a href="https://github.com/machmoon/cognix" class="project-card" target="_blank">
+            <a href="https://github.com/machmoon/cognix" class="project-card" target="_blank" data-lightbox>
                 <video poster="projects/cognix/cognix.poster.jpg" preload="none" src="projects/cognix/cognix.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">CogNix</span>
                 <span class="project-desc">AI-assisted learning platform and VS Code extension to analyze AI usage in coding workflows</span>
@@ -522,7 +579,7 @@
                 <span class="project-title">Eboard Battery Rebuild</span>
                 <span class="project-desc">Boosted board battery pack rebuild with new 18650 cells</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/geosnap/geosnap.poster.jpg" src="projects/geosnap/geosnap.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Geosnap</span>
                 <span class="project-desc">GeoGuessr x Snapchat-style location guessing game</span>
@@ -532,7 +589,7 @@
                 <span class="project-title">Lights Out</span>
                 <span class="project-desc">Puzzle game where each press flips a light and its neighbors. The goal: Lights out!</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/shock-console/console-demo.poster.jpg" preload="none" src="projects/shock-console/console-demo.mp4" class="project-video" id="shock-console-video" muted playsinline></video>
                 <span class="project-title">Game Console That Shocks You</span>
                 <span class="project-desc">Like the Wii, but with a shocking twist</span>
@@ -542,7 +599,7 @@
                 <span class="project-title">Line Following Robot</span>
                 <span class="project-desc">Arduino with IR sensors for line tracking</span>
             </a>
-            <a href="https://github.com/machmoon/MineRL" class="project-card" target="_blank">
+            <a href="https://github.com/machmoon/MineRL" class="project-card" target="_blank" data-lightbox>
                 <video poster="projects/minerl/minerl_video.poster.jpg" src="projects/minerl/minerl_video.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">MineRL</span>
                 <span class="project-desc">Reinforcement learning agent trained in Minecraft environment</span>
@@ -552,7 +609,7 @@
                 <span class="project-title">Racecar Gym</span>
                 <span class="project-desc">A2C/ResNet50 for autonomous vehicle control in PyBullet simulation</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <img src="projects/rov/IMG_4107_new.jpg" alt="ROV" class="project-image-contain" onerror="this.outerHTML='<div class=\'project-image-placeholder\'>No image</div>'">
                 <span class="project-title">ROV</span>
                 <span class="project-desc">6-thruster underwater vehicle with IMU, pressure sensors, and tethered Ethernet</span>
@@ -567,10 +624,10 @@
                 <span class="project-title">Self-Balancing Robot</span>
                 <span class="project-desc">Two-wheeled balancing robot with PID control (sorry, lost video of it working!)</span>
             </a>
-            <a href="https://apps.apple.com/app/id6794570257" class="project-card" target="_blank">
-                <video poster="projects/voyage/voyage.poster.jpg" src="projects/voyage/voyage.mp4" class="project-video project-video-portrait" autoplay loop muted playsinline></video>
+            <a href="https://apps.apple.com/app/id6794570257" class="project-card" target="_blank" data-lightbox>
+                <video poster="projects/voyage/voyage.poster.jpg" src="projects/voyage/voyage.mp4" class="project-video" autoplay loop muted playsinline></video>
                 <span class="project-title">Voyage</span>
-                <span class="project-desc">Study timer on the App Store, built as a real flight: book a route, tear the boarding pass, focus through the window, land the session. Free and open source</span>
+                <span class="project-desc">A study timer flown as a real flight. On the App Store, free and open source</span>
             </a>
             <div class="project-card has-audio" id="tesla-coil-card">
                 <video poster="projects/tesla-coil/timelapse.poster.jpg" preload="none" src="projects/tesla-coil/timelapse.mp4" class="project-video" id="tesla-coil-video" loop muted playsinline></video>
@@ -592,22 +649,22 @@
 
         <p class="section-title">Personal</p>
         <div class="projects-grid">
-            <a href="https://github.com/machmoon/silkscreen" class="project-card" target="_blank">
-                <video poster="projects/ada/ada.poster.jpg" preload="none" src="projects/ada/ada.mp4" class="project-video project-video-letterbox" loop muted playsinline></video>
+            <a href="https://github.com/machmoon/silkscreen" class="project-card" target="_blank" data-lightbox>
+                <video poster="projects/ada/ada.poster.jpg" preload="none" src="projects/ada/ada.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">Ada</span>
-                <span class="project-desc">AI hardware engineer: say "hey Ada", describe a board, and she proposes the circuit, draws the schematic, places and routes the PCB, models the case, and hands you a KiCad project. Something I hope to build a company around one day</span>
+                <span class="project-desc">AI hardware engineer: describe a board, get a routed KiCad project and a case back</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/random/random_hockey.poster.jpg" preload="none" src="projects/random/random_hockey.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">Hockey</span>
                 <span class="project-desc">Playing and refereeing hockey</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/skiing/skiing_video.poster.jpg" preload="none" src="projects/skiing/skiing_video.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">Skiing</span>
                 <span class="project-desc">Lake Tahoe!!!</span>
             </a>
-            <a href="#" class="project-card">
+            <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/random/random_chess.poster.jpg" preload="none" src="projects/random/random_chess.mp4" class="project-video" id="random-video" muted playsinline></video>
                 <span class="project-title">Random</span>
                 <span class="project-desc">From chess to wheelies to A LOT of fails.</span>
@@ -624,5 +681,69 @@
             <a href="https://linkedin.com/in/pat-rickliu">LinkedIn</a>
         </div>
     </div>
+    <dialog class="lightbox" id="lightbox" aria-labelledby="lightbox-title">
+        <div class="lightbox-panel">
+            <div id="lightbox-slot"></div>
+            <div class="lightbox-caption">
+                <div>
+                    <div class="lightbox-title" id="lightbox-title"></div>
+                    <div class="lightbox-desc" id="lightbox-desc"></div>
+                </div>
+                <a class="lightbox-link" id="lightbox-link" target="_blank" rel="noopener">Open project ↗</a>
+            </div>
+        </div>
+    </dialog>
+    <script>
+        // Any square tile marked data-lightbox opens its full media on click.
+        // The tile's own video keeps looping; the dialog gets a fresh element
+        // with controls and sound available, since the click is a user gesture.
+        window.addEventListener('load', function() {
+            var dialog = document.getElementById('lightbox');
+            if (!dialog || typeof dialog.showModal !== 'function') return;
+            var slot = document.getElementById('lightbox-slot');
+            var title = document.getElementById('lightbox-title');
+            var desc = document.getElementById('lightbox-desc');
+            var link = document.getElementById('lightbox-link');
+
+            function close() {
+                var v = slot.querySelector('video');
+                if (v) v.pause();
+                slot.innerHTML = '';
+                if (dialog.open) dialog.close();
+            }
+
+            document.querySelectorAll('.project-card[data-lightbox]').forEach(function(card) {
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var media = card.querySelector('video, img');
+                    if (!media) return;
+                    slot.innerHTML = '';
+                    var el;
+                    if (media.tagName === 'VIDEO') {
+                        el = document.createElement('video');
+                        el.src = media.currentSrc || media.src;
+                        el.poster = media.poster;
+                        el.controls = true; el.loop = true; el.playsInline = true; el.autoplay = true;
+                    } else {
+                        el = document.createElement('img');
+                        el.src = media.currentSrc || media.src; el.alt = media.alt || '';
+                    }
+                    el.className = 'lightbox-media';
+                    slot.appendChild(el);
+                    title.textContent = (card.querySelector('.project-title') || {}).textContent || '';
+                    desc.textContent = (card.querySelector('.project-desc') || {}).textContent || '';
+                    var href = card.getAttribute('href');
+                    link.hidden = !href || href === '#';
+                    link.href = href || '#';
+                    dialog.showModal();
+                    if (el.play) el.play().catch(function(){});
+                });
+            });
+
+            // Backdrop click: the dialog itself is the target only outside the panel.
+            dialog.addEventListener('click', function(e) { if (e.target === dialog) close(); });
+            dialog.addEventListener('close', close);
+        });
+    </script>
 </body>
 </html>
