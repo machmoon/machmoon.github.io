@@ -115,6 +115,17 @@
             background: #000;
         }
 
+        /* A phone-recorded tile keeps the recording's own shape, so nothing is
+           cropped off the top or bottom. The ratio matches
+           projects/voyage/voyage.mp4 (720x1566), so there are no bars at all;
+           `contain` and the black plate only absorb sub-pixel rounding, and the
+           recording's own edges are already black. */
+        .project-video-portrait {
+            aspect-ratio: 720 / 1566;
+            object-fit: contain;
+            background: #000;
+        }
+
         .project-audio {
             display: none;
         }
@@ -556,10 +567,10 @@
                 <span class="project-title">Self-Balancing Robot</span>
                 <span class="project-desc">Two-wheeled balancing robot with PID control (sorry, lost video of it working!)</span>
             </a>
-            <a href="https://github.com/machmoon/Voyage" class="project-card" target="_blank">
-                <video poster="projects/voyage/voyage.poster.jpg" src="projects/voyage/voyage.mp4" class="project-video" autoplay loop muted playsinline></video>
+            <a href="https://apps.apple.com/app/id6794570257" class="project-card" target="_blank">
+                <video poster="projects/voyage/voyage.poster.jpg" src="projects/voyage/voyage.mp4" class="project-video project-video-portrait" autoplay loop muted playsinline></video>
                 <span class="project-title">Voyage</span>
-                <span class="project-desc">Open-source iOS study timer built as a real flight: book a route, tear the pass, land the session</span>
+                <span class="project-desc">Study timer on the App Store, built as a real flight: book a route, tear the boarding pass, focus through the window, land the session. Free and open source</span>
             </a>
             <div class="project-card has-audio" id="tesla-coil-card">
                 <video poster="projects/tesla-coil/timelapse.poster.jpg" preload="none" src="projects/tesla-coil/timelapse.mp4" class="project-video" id="tesla-coil-video" loop muted playsinline></video>
@@ -581,6 +592,11 @@
 
         <p class="section-title">Personal</p>
         <div class="projects-grid">
+            <a href="https://github.com/machmoon/silkscreen" class="project-card" target="_blank">
+                <video poster="projects/ada/ada.poster.jpg" preload="none" src="projects/ada/ada.mp4" class="project-video project-video-letterbox" loop muted playsinline></video>
+                <span class="project-title">Ada</span>
+                <span class="project-desc">AI hardware engineer: say "hey Ada", describe a board, and she proposes the circuit, draws the schematic, places and routes the PCB, models the case, and hands you a KiCad project. Something I hope to build a company around one day</span>
+            </a>
             <a href="#" class="project-card">
                 <video poster="projects/random/random_hockey.poster.jpg" preload="none" src="projects/random/random_hockey.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">Hockey</span>
