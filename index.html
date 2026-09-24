@@ -24,6 +24,16 @@
             max-width: 700px;
         }
 
+        .avatar {
+            display: block;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #e0e0e0;
+            margin-bottom: 20px;
+        }
+
         h1 {
             font-size: 1.1rem;
             font-weight: 500;
@@ -330,6 +340,11 @@
                 padding: 40px 24px 40px 32px;
             }
 
+            .avatar {
+                width: 120px;
+                height: 120px;
+            }
+
             .projects-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 16px;
@@ -505,9 +520,10 @@
 </head>
 <body>
     <div class="container page-blur">
-        <h1>Patrick Liu</h1>
+        <img src="assets/patrick.jpg" alt="Patrick Liu" class="avatar" width="160" height="160">
+        <h1>Hi, I'm Patrick!</h1>
         <p class="subtitle">HWE Intern @ Laminar (Process Aware Autonomy)</p>
-        <p class="subtitle">Making UCSB's First Hardware Hackathon</p>
+        <p class="subtitle">Making UCSB's First Hardware Hackathon!</p>
         <p class="subtitle">Founded UCSB's Underwater Vehicles Team</p>
         <p class="location">Bay Area, CA</p>
         <p class="last-updated" data-updated="2026-09-14" hidden>Last updated September 2026</p>
