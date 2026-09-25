@@ -464,6 +464,332 @@
             color: #666;
         }
 
+        /* "Text me": an iMessage-style thread that emails Patrick.
+           Look ported from Alana Goyal's open-source iMessage clone,
+           github.com/alanagoyal/messages (same components ship in her site,
+           alanagoyal/alanagoyal components/apps/messages/):
+           - bubbles: components/message-bubble.tsx. A 17px border (22px on the
+             tail side) painted by border-image with the tail SVGs in
+             public/message-bubbles/*.svg (copied to assets/messages/), slice
+             "31 31 31 43" / "31 43 31 31"; content pulled back with -10px -4px;
+             gray #F3F4F6, blue #0A7CFF, or linear-gradient(#47B5FF,#0A7CFF)
+             fixed on desktop; 14px text; max-width 75%.
+           - typing dots + "Delivered": same file (blink 1.4s, 6px dots;
+             10px gray-500 receipt, scaleIn from app/globals.css).
+           - compose: components/message-input.tsx. 18px-radius field, pl-4 pr-8
+             py-1, min-height 32px, and a round #0A7CFF button at right-1
+             bottom-1 holding lucide's ArrowUp at stroke 3, shown once there is
+             text. Enter sends, Shift+Enter is a newline.
+           - header: components/chat-header.tsx (mobile: 40px avatar, name in
+             text-xs below; the new-chat row is a muted "To:" with a bare input,
+             reused here as "From:").
+           Deviations: a visible focus ring on the fields (hers has none), and
+           a red "Not Delivered" state, which her demo never needs. */
+        .imsg {
+            width: 100%;
+            max-width: 380px;
+            margin-top: 20px;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 10px 30px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            color: #111827;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .imsg-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 12px 16px 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .imsg-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: linear-gradient(#9BA1AA, #7D828A);
+        }
+
+        .imsg-name {
+            font-size: 12px;
+            color: #111827;
+        }
+
+        .imsg-from {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            font-size: 14px;
+        }
+
+        .imsg-from:focus-within {
+            box-shadow: inset 0 -2px 0 #0A7CFF;
+        }
+
+        .imsg-from label {
+            color: #71717a;
+            flex-shrink: 0;
+        }
+
+        .imsg-from input {
+            flex: 1;
+            min-width: 0;
+            border: 0;
+            outline: none;
+            background: transparent;
+            font: inherit;
+            color: inherit;
+        }
+
+        .imsg-thread {
+            display: flex;
+            flex-direction: column;
+            min-height: 180px;
+            max-height: 360px;
+            overflow-y: auto;
+            padding: 8px 12px;
+            overscroll-behavior: contain;
+        }
+
+        /* Bottom-anchored like a chat, without justify-content: flex-end,
+           which makes overflowed messages unreachable by scrolling. */
+        .imsg-thread > :first-child {
+            margin-top: auto;
+        }
+
+        .imsg-row {
+            display: flex;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .imsg-row.me {
+            justify-content: flex-end;
+        }
+
+        .imsg-bubble {
+            position: relative;
+            max-width: 75%;
+            flex: none;
+            border-style: solid;
+            border-width: 17px;
+            border-left-width: 22px;
+            border-image: url("assets/messages/left-bubble-light.svg") 31 31 31 43;
+            background: #F3F4F6;
+            color: #111827;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .imsg-bubble > .imsg-text {
+            display: block;
+            margin: -10px -4px;
+        }
+
+        /* Her hairline cover for the seam on the bubble's right edge. */
+        .imsg-bubble::after {
+            content: "";
+            position: absolute;
+            inset: -17px;
+            border-right: 0.5px solid #fff;
+            pointer-events: none;
+        }
+
+        .imsg-row.me .imsg-bubble {
+            border-left-width: 17px;
+            border-right-width: 22px;
+            border-image: url("assets/messages/right-bubble-light.svg") 31 43 31 31;
+            background: #0A7CFF;
+            color: #fff;
+        }
+
+        .imsg-row.me .imsg-bubble::after {
+            inset: -22px;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .imsg-row.me .imsg-bubble {
+                background: linear-gradient(#47B5FF, #0A7CFF) fixed;
+            }
+        }
+
+        .imsg-row.is-failed .imsg-bubble {
+            opacity: 0.85;
+        }
+
+        .imsg-alert {
+            flex: none;
+            width: 20px;
+            height: 20px;
+            margin-left: 6px;
+            color: #FF3B30;
+        }
+
+        .imsg-typing .imsg-bubble {
+            border-image: url("assets/messages/chat-typing-light.svg") 31 31 31 43;
+        }
+
+        .imsg-dots {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .imsg-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #6B7280;
+            animation: imsg-blink 1.4s infinite linear;
+        }
+
+        .imsg-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .imsg-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes imsg-blink {
+            0% { opacity: 0.3; }
+            20% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        .imsg-receipt {
+            padding: 4px 4px 0 0;
+            font-size: 10px;
+            color: #6B7280;
+            text-align: right;
+        }
+
+        .imsg-receipt.is-new span {
+            display: inline-block;
+            animation: imsg-scale-in 0.3s cubic-bezier(0.17, 0.67, 0.29, 1) forwards;
+        }
+
+        @keyframes imsg-scale-in {
+            0% { opacity: 0; transform: scaleX(0) translateX(50%); }
+            20% { opacity: 1; }
+            100% { opacity: 1; transform: scaleX(1) translateX(0); }
+        }
+
+        .imsg-retry {
+            border: 0;
+            background: none;
+            padding: 0;
+            font: inherit;
+            color: #FF3B30;
+            cursor: pointer;
+        }
+
+        .imsg-retry:focus-visible {
+            outline: 2px solid #FF3B30;
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        .imsg-system {
+            align-self: center;
+            max-width: 80%;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #71717a;
+            text-align: center;
+        }
+
+        .imsg-compose {
+            position: relative;
+            padding: 16px;
+        }
+
+        .imsg-field {
+            display: block;
+            width: 100%;
+            min-height: 32px;
+            max-height: 120px;
+            padding: 4px 32px 4px 16px;
+            border: 1px solid rgba(113, 113, 122, 0.2);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.8);
+            font: inherit;
+            font-size: 16px; /* 16px stops iOS zooming on focus; her text-base sm:text-sm */
+            line-height: 22px;
+            color: inherit;
+            resize: none;
+            overflow-y: hidden;
+            outline: none;
+        }
+
+        .imsg-field:focus-visible {
+            border-color: #0A7CFF;
+            box-shadow: 0 0 0 3px rgba(10, 124, 255, 0.2);
+        }
+
+        .imsg-send {
+            position: absolute;
+            right: 20px;  /* compose padding + her right-1 */
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            padding: 4px;
+            border: 0;
+            border-radius: 50%;
+            background: #0A7CFF;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .imsg-send[hidden] {
+            display: none;
+        }
+
+        .imsg-send:focus-visible {
+            outline: 2px solid #1a1a1a;
+            outline-offset: 2px;
+        }
+
+        .imsg-send svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .imsg-honey {
+            position: absolute;
+            left: -10000px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+
+        @media (min-width: 640px) {
+            .imsg-field { font-size: 14px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .imsg-dots span { animation: none; opacity: 0.6; }
+            .imsg-receipt.is-new span { animation: none; }
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 40px 24px 40px 32px;
@@ -484,41 +810,6 @@
         }
     </style>
     <script>
-        // Educational Analytics - Collect and store visitor data
-        async function logVisitorInfo() {
-            const visitorData = {
-                id: Date.now(),
-                visitTime: new Date().toISOString(),
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                browser: navigator.userAgent,
-                language: navigator.language,
-                platform: navigator.platform,
-                screenSize: `${screen.width}x${screen.height}`,
-                currentPage: window.location.pathname,
-                referrer: document.referrer || 'Direct visit',
-            };
-
-            try {
-                const response = await fetch('https://ipapi.co/json/');
-                const geo = await response.json();
-                visitorData.ip = geo.ip;
-                visitorData.city = geo.city;
-                visitorData.region = geo.region;
-                visitorData.country = geo.country_name;
-                visitorData.org = geo.org;
-            } catch (e) {
-                visitorData.ip = 'Unknown';
-                visitorData.city = 'Unknown';
-            }
-
-            // Store in localStorage
-            const visitors = JSON.parse(localStorage.getItem('siteVisitors') || '[]');
-            visitors.push(visitorData);
-            localStorage.setItem('siteVisitors', JSON.stringify(visitors));
-        }
-
-        window.addEventListener('load', logVisitorInfo);
-
         // Enable audio interactions on click
         window.addEventListener('load', function() {
             function updateAudioLabel(labelEl, isMuted) {
@@ -828,6 +1119,27 @@
 
         <p class="outreach">I work on a lot more than what's here &mdash; always feel free to reach out!</p>
 
+        <form class="imsg" id="imsg" aria-label="Text Patrick" novalidate>
+            <div class="imsg-header">
+                <img src="assets/patrick.jpg" alt="" class="imsg-avatar" width="40" height="40" loading="lazy">
+                <span class="imsg-name">Patrick</span>
+            </div>
+            <div class="imsg-from">
+                <label for="imsg-from">From:<span class="sr-only"> your email or phone, optional, so Patrick can reply</span></label>
+                <input type="text" id="imsg-from" name="from" autocomplete="email" inputmode="email" maxlength="200" placeholder="your email, so I can text back">
+            </div>
+            <div class="imsg-thread" id="imsg-thread" role="log" aria-live="polite" aria-label="Messages with Patrick"></div>
+            <div class="imsg-compose">
+                <label for="imsg-text" class="sr-only">Message to Patrick</label>
+                <textarea id="imsg-text" name="message" class="imsg-field" rows="1" maxlength="2000" placeholder="Type a message..." enterkeyhint="send" required></textarea>
+                <input type="text" name="_honey" class="imsg-honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <button type="submit" class="imsg-send" id="imsg-send" aria-label="Send message" hidden>
+                    <!-- lucide-icons/lucide icons/arrow-up.svg, stroke 3 as in her message-input.tsx -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+                </button>
+            </div>
+        </form>
+
         <div class="divider"></div>
 
         <div class="links">
@@ -1076,5 +1388,195 @@
             dialog.addEventListener('close', close);
         });
     </script>
+    <script>
+        // "Text me" thread. Behaviour follows alanagoyal/messages: the send
+        // button appears once there is text and Enter sends
+        // (components/message-input.tsx); only the newest sent message carries
+        // "Delivered" (isLastUserMessage in components/message-bubble.tsx).
+        //
+        // Delivery: FormSubmit's AJAX endpoint (formsubmit.co/documentation,
+        // "AJAX Forms"; fetch example in gist kesarawimal/53d4308a…). It answers
+        // {"success": "true"|"false", "message": …}; "false" includes the
+        // not-yet-activated case, so that counts as Not Delivered. `_honey` is
+        // FormSubmit's honeypot (filled => silently dropped), `email` becomes
+        // the Reply-To, `_template: table` formats the email.
+        // After activating, FormSubmit mails a random string; swapping it in
+        // for the address below hides the address from the page source.
+        (function() {
+            var ENDPOINT = 'https://formsubmit.co/ajax/patrick_liu@ucsb.edu';
+            var form = document.getElementById('imsg');
+            if (!form || !window.fetch) return;
+            var thread = document.getElementById('imsg-thread');
+            var field = document.getElementById('imsg-text');
+            var from = document.getElementById('imsg-from');
+            var send = document.getElementById('imsg-send');
+            var honey = form.querySelector('[name="_honey"]');
+            var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+            var ALERT = '<svg class="imsg-alert" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M12 6.5v7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.4" fill="#fff"/></svg>';
+            var lastDelivered = null;
+            var hinted = false;
+
+            function scrollDown() { thread.scrollTop = thread.scrollHeight; }
+
+            function bubble(text, me) {
+                var row = document.createElement('div');
+                row.className = 'imsg-row' + (me ? ' me' : '');
+                var b = document.createElement('div');
+                b.className = 'imsg-bubble';
+                var t = document.createElement('span');
+                t.className = 'imsg-text';
+                t.textContent = text;
+                b.appendChild(t);
+                row.appendChild(b);
+                thread.appendChild(row);
+                scrollDown();
+                return row;
+            }
+
+            function system(text) {
+                var p = document.createElement('div');
+                p.className = 'imsg-system';
+                p.textContent = text;
+                thread.appendChild(p);
+                scrollDown();
+            }
+
+            // Patrick "types", then says hi, when the thread first scrolls into view.
+            var greeted = false;
+            function greet() {
+                if (greeted) return;
+                greeted = true;
+                var line = "hey! i'm patrick 👋 text me here";
+                if (reduce) { bubble(line, false); return; }
+                var typing = document.createElement('div');
+                typing.className = 'imsg-row imsg-typing';
+                typing.setAttribute('aria-label', 'Patrick is typing');
+                typing.innerHTML = '<div class="imsg-bubble"><div class="imsg-dots"><span></span><span></span><span></span></div></div>';
+                thread.appendChild(typing);
+                setTimeout(function() {
+                    typing.remove();
+                    // A visitor who already sent something keeps their message last.
+                    var first = thread.firstChild;
+                    var row = bubble(line, false);
+                    if (first) thread.insertBefore(row, first);
+                }, 1100);
+            }
+            if ('IntersectionObserver' in window && !reduce) {
+                var io = new IntersectionObserver(function(entries) {
+                    if (entries.some(function(e) { return e.isIntersecting; })) { io.disconnect(); greet(); }
+                }, { threshold: 0.4 });
+                io.observe(thread);
+            } else {
+                greet();
+            }
+
+            function grow() {
+                field.style.height = 'auto';
+                var h = Math.min(120, Math.max(32, field.scrollHeight + 2));
+                field.style.height = h + 'px';
+                field.style.overflowY = h >= 120 ? 'auto' : 'hidden';
+            }
+            field.addEventListener('input', function() {
+                send.hidden = !field.value.trim();
+                grow();
+            });
+            field.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+                    e.preventDefault();
+                    if (typeof form.requestSubmit === 'function') form.requestSubmit();
+                    else form.dispatchEvent(new Event('submit', { cancelable: true }));
+                }
+            });
+
+            function receipt(row, state, retry) {
+                var old = row.nextSibling && row.nextSibling.classList && row.nextSibling.classList.contains('imsg-receipt') ? row.nextSibling : null;
+                var r = old || document.createElement('div');
+                r.className = 'imsg-receipt';
+                r.innerHTML = '';
+                row.classList.toggle('is-failed', state === 'failed');
+                var alert = row.querySelector('.imsg-alert');
+                if (alert) alert.remove();
+                if (state === 'sending') {
+                    r.innerHTML = '<span>Sending…</span>';
+                } else if (state === 'delivered') {
+                    r.classList.add('is-new');
+                    r.innerHTML = '<span>Delivered</span>';
+                } else if (state === 'failed') {
+                    row.insertAdjacentHTML('beforeend', ALERT);
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'imsg-retry';
+                    btn.textContent = 'Not Delivered · Tap to retry';
+                    btn.addEventListener('click', retry);
+                    r.appendChild(btn);
+                }
+                if (!old) row.parentNode.insertBefore(r, row.nextSibling);
+                scrollDown();
+                return r;
+            }
+
+            function deliver(row, payload) {
+                receipt(row, 'sending');
+                var ctrl = 'AbortController' in window ? new AbortController() : null;
+                var timer = ctrl && setTimeout(function() { ctrl.abort(); }, 15000);
+                fetch(ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload),
+                    signal: ctrl ? ctrl.signal : undefined
+                }).then(function(res) {
+                    return res.json().then(function(d) {
+                        if (!res.ok || !(d.success === true || d.success === 'true')) throw new Error(d.message || res.status);
+                    });
+                }).then(function() {
+                    // Only the newest delivered message keeps its receipt.
+                    if (lastDelivered && lastDelivered !== row) {
+                        var prev = lastDelivered.nextSibling;
+                        if (prev && prev.classList.contains('imsg-receipt') && !lastDelivered.classList.contains('is-failed')) prev.remove();
+                    }
+                    lastDelivered = row;
+                    receipt(row, 'delivered');
+                    if (!hinted) {
+                        hinted = true;
+                        system(payload.from
+                            ? "Patrick will get back to you at " + payload.from + "."
+                            : "Want a reply? Add your email in From: above and send another.");
+                    }
+                }).catch(function() {
+                    receipt(row, 'failed', function() { deliver(row, payload); });
+                }).finally(function() { if (timer) clearTimeout(timer); });
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var text = field.value.trim();
+                if (!text) return;
+                greet();
+                var who = from.value.trim();
+                var payload = {
+                    _subject: 'New text from machmoon.github.io',
+                    _template: 'table',
+                    _captcha: 'false',
+                    _honey: honey.value,
+                    message: text,
+                    from: who,
+                    page: location.href
+                };
+                if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(who)) payload.email = who;
+                field.value = '';
+                send.hidden = true;
+                grow();
+                if (coarse) field.blur();
+                deliver(bubble(text, true), payload);
+            });
+        })();
+    </script>
+    <!-- Aggregate visitor analytics: GoatCounter (github.com/arp242/goatcounter,
+         open source, no cookies, no personal data). Snippet as documented in
+         its public/count.js, which reads the endpoint from data-goatcounter
+         and skips localhost/file:// by itself. Weekly email reports come from
+         its cron/email_reports.go (Settings -> "Send email reports"). -->
+    <script data-goatcounter="https://machmoon.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
