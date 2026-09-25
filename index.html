@@ -24,14 +24,117 @@
             max-width: 700px;
         }
 
+        /* Photo on the left, greeting on the right. The photo scales with the
+           viewport and tops out near the height of the text block beside it. */
+        .hero {
+            display: flex;
+            align-items: center;
+            gap: clamp(16px, 3vw, 28px);
+            margin-bottom: 8px;
+        }
+
+        .hero:has(+ .last-updated[hidden]) {
+            margin-bottom: 48px;
+        }
+
+        .hero-text {
+            min-width: 0;
+        }
+
         .avatar {
             display: block;
-            width: 160px;
-            height: 160px;
+            flex-shrink: 0;
+            width: clamp(96px, 18vw, 160px);
+            height: auto;
+            aspect-ratio: 1;
             border-radius: 50%;
             object-fit: cover;
             background: #e0e0e0;
-            margin-bottom: 20px;
+        }
+
+        /* Visits + like row. Like animation follows Bluesky's web like icon:
+           bluesky-social/social-app src/lib/custom-animations/LikeIcon.web.tsx
+           (scale 1 -> 0.7 -> 1.2 -> 1 over 600ms, plus a circle burst). */
+        .stats {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 6px;
+        }
+
+        .stats[hidden] {
+            display: none;
+        }
+
+        .stat {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .like-button {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            margin: -6px -4px -6px -6px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: none;
+            color: #666;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .like-button:focus-visible {
+            outline: 2px solid #1a1a1a;
+            outline-offset: 1px;
+        }
+
+        .like-button svg {
+            width: 18px;
+            height: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .like-button .heart-filled,
+        .like-button[aria-pressed="true"] .heart-outline {
+            display: none;
+        }
+
+        .like-button[aria-pressed="true"] .heart-filled {
+            display: block;
+        }
+
+        .like-button[aria-pressed="true"] {
+            color: #ed4956;
+        }
+
+        .like-burst {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ed4956;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .like-burst.inner {
+            background: #f5f5f5;
         }
 
         h1 {
@@ -341,8 +444,11 @@
             }
 
             .avatar {
-                width: 120px;
-                height: 120px;
+                width: 88px;
+            }
+
+            .hero {
+                gap: 16px;
             }
 
             .projects-grid {
@@ -520,12 +626,32 @@
 </head>
 <body>
     <div class="container page-blur">
-        <img src="assets/patrick.jpg" alt="Patrick Liu" class="avatar" width="160" height="160">
-        <h1>Hi, I'm Patrick!</h1>
-        <p class="subtitle">HWE Intern @ Laminar (Process Aware Autonomy)</p>
-        <p class="subtitle">Making UCSB's First Hardware Hackathon!</p>
-        <p class="subtitle">Founded UCSB's Underwater Vehicles Team</p>
-        <p class="location">Bay Area, CA</p>
+        <header class="hero">
+            <img src="assets/patrick.jpg" alt="Patrick Liu" class="avatar" width="160" height="160">
+            <div class="hero-text">
+                <h1>Hi, I'm Patrick!</h1>
+                <p class="subtitle">HWE Intern @ Laminar (Process Aware Autonomy)</p>
+                <p class="subtitle">Making UCSB's First Hardware Hackathon!</p>
+                <p class="subtitle">Founded UCSB's Underwater Vehicles Team</p>
+                <p class="location">Bay Area, CA</p>
+                <div class="stats" id="stats" hidden>
+                    <span class="stat" title="Visits">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span><span id="visit-count">&ndash;</span> visits</span>
+                    </span>
+                    <span class="stat">
+                        <!-- Heart paths: bluesky-social/social-app src/components/icons/Heart2.tsx -->
+                        <button type="button" class="like-button" id="like-button" aria-pressed="false" aria-label="Like this site">
+                            <span class="like-burst" aria-hidden="true"></span>
+                            <span class="like-burst inner" aria-hidden="true"></span>
+                            <svg class="heart-outline" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.734 5.091c-1.238-.276-2.708.047-4.022 1.38a1 1 0 0 1-1.424 0C9.974 5.137 8.504 4.814 7.266 5.09c-1.263.282-2.379 1.206-2.92 2.556C3.33 10.18 4.252 14.84 12 19.348c7.747-4.508 8.67-9.168 7.654-11.7-.541-1.351-1.657-2.275-2.92-2.557Zm4.777 1.812c1.604 4-.494 9.69-9.022 14.47a1 1 0 0 1-.978 0C2.983 16.592.885 10.902 2.49 6.902c.779-1.942 2.414-3.334 4.342-3.764 1.697-.378 3.552.003 5.169 1.286 1.617-1.283 3.472-1.664 5.17-1.286 1.927.43 3.562 1.822 4.34 3.764Z"/></svg>
+                            <svg class="heart-filled" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.489 21.372c8.528-4.78 10.626-10.47 9.022-14.47-.779-1.941-2.414-3.333-4.342-3.763-1.697-.378-3.552.003-5.169 1.287-1.617-1.284-3.472-1.665-5.17-1.287-1.927.43-3.562 1.822-4.34 3.764-1.605 4 .493 9.69 9.021 14.47a1 1 0 0 0 .978 0Z"/></svg>
+                        </button>
+                        <span id="like-count" aria-live="polite">&ndash;</span>
+                    </span>
+                </div>
+            </div>
+        </header>
         <p class="last-updated" data-updated="2026-09-14" hidden>Last updated September 2026</p>
 
         <p class="section-title">Projects</p>
@@ -706,6 +832,112 @@
             </div>
         </div>
     </dialog>
+    <script>
+        // Visits + likes, stored in Abacus (github.com/JasonLovesDoggo/abacus),
+        // an open-source counting API; no key needed. From its routes.go:
+        // GET /hit/:ns/:key atomically increments (Redis INCR, creating the key)
+        // and returns {"value": n}; GET /get/:ns/:key returns {"value": n}, or
+        // 404 before the first hit. Decrementing needs the counter's admin key,
+        // which can't live in a public page, so a like is one-way: a liked
+        // heart stays liked. If the API is unreachable the row stays hidden.
+        (function() {
+            var API = 'https://abacus.jasoncameron.dev';
+            var NS = 'machmoon.github.io';
+            var row = document.getElementById('stats');
+            var visitEl = document.getElementById('visit-count');
+            var likeEl = document.getElementById('like-count');
+            var button = document.getElementById('like-button');
+            if (!row || !button) return;
+
+            function store(kind, key, value) {
+                try {
+                    var s = window[kind];
+                    if (value === undefined) return s.getItem(key);
+                    s.setItem(key, value);
+                } catch (e) { return null; }
+            }
+
+            function count(action, key) {
+                var ctrl = 'AbortController' in window ? new AbortController() : null;
+                var timer = ctrl && setTimeout(function() { ctrl.abort(); }, 5000);
+                return fetch(API + '/' + action + '/' + NS + '/' + key, ctrl ? { signal: ctrl.signal } : {})
+                    .then(function(r) {
+                        if (r.status === 404 && action === 'get') return 0;
+                        if (!r.ok) throw new Error(r.status);
+                        return r.json().then(function(d) {
+                            if (typeof d.value !== 'number') throw new Error('bad body');
+                            return d.value;
+                        });
+                    })
+                    .finally(function() { if (timer) clearTimeout(timer); });
+            }
+
+            function show(el, n) {
+                el.textContent = typeof n === 'number' ? n.toLocaleString() : '–';
+            }
+
+            var likes = null;
+            var liked = store('localStorage', 'machmoon-liked') === '1';
+            button.setAttribute('aria-pressed', String(liked));
+
+            // One visit per browser session.
+            var counted = store('sessionStorage', 'machmoon-visit-counted') === '1';
+            var visits = count(counted ? 'get' : 'hit', 'visits').then(function(n) {
+                store('sessionStorage', 'machmoon-visit-counted', '1');
+                show(visitEl, n);
+            });
+            var likesLoaded = count('get', 'likes').then(function(n) {
+                likes = n;
+                show(likeEl, n);
+            });
+
+            // Show the row once either number arrives; if both fail, it stays hidden.
+            Promise.allSettled([visits, likesLoaded]).then(function(results) {
+                if (results.some(function(r) { return r.status === 'fulfilled'; })) row.hidden = false;
+            });
+
+            var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+            function pop() {
+                if ((reduceMotion && reduceMotion.matches) || !button.animate) return;
+                var timing = { duration: 600, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' };
+                button.querySelector('.heart-filled').animate([
+                    { transform: 'scale(1)' }, { transform: 'scale(0.7)' },
+                    { transform: 'scale(1.2)' }, { transform: 'scale(1)' }
+                ], timing);
+                var bursts = button.querySelectorAll('.like-burst');
+                bursts[0].animate([
+                    { opacity: 0, transform: 'scale(0)' }, { opacity: 0.4 },
+                    { transform: 'scale(1.5)' }, { opacity: 0.4 },
+                    { opacity: 0, transform: 'scale(1.5)' }
+                ], timing);
+                bursts[1].animate([
+                    { opacity: 0, transform: 'scale(0)' }, { opacity: 1 },
+                    { transform: 'scale(0)' }, { opacity: 1 },
+                    { opacity: 0, transform: 'scale(1.5)' }
+                ], timing);
+            }
+
+            var pending = false;
+            button.addEventListener('click', function() {
+                if (liked) { pop(); return; }
+                if (pending) return;
+                pending = true;
+                liked = true;
+                button.setAttribute('aria-pressed', 'true');
+                pop();
+                if (typeof likes === 'number') show(likeEl, likes + 1);
+                count('hit', 'likes').then(function(n) {
+                    likes = n;
+                    store('localStorage', 'machmoon-liked', '1');
+                    show(likeEl, n);
+                }).catch(function() {
+                    liked = false;
+                    button.setAttribute('aria-pressed', 'false');
+                    show(likeEl, likes);
+                }).finally(function() { pending = false; });
+            });
+        })();
+    </script>
     <script>
         // Any square tile marked data-lightbox opens its full media on click.
         // The tile's own video keeps looping; the dialog gets a fresh element
