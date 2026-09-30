@@ -370,6 +370,9 @@
             line-height: 1.4;
         }
 
+        .project-link { color: #1a1a1a; white-space: nowrap; cursor: pointer; }
+        .project-link:hover { text-decoration: underline; }
+
         .audio-indicator {
             position: absolute;
             top: 8px;
@@ -973,10 +976,10 @@
                 <span class="project-title">Acoustic Sensing Grid</span>
                 <span class="project-desc">STM32G4 + ESP32 array with 100kHz ADC and TDOA localization</span>
             </a>
-            <a href="https://github.com/machmoon/silkscreen" class="project-card" target="_blank" data-lightbox>
+            <a href="https://d1l2uamq911fx1.cloudfront.net/" class="project-card" target="_blank" rel="noopener" data-lightbox>
                 <video poster="projects/ada/ada.poster.jpg" preload="none" src="projects/ada/ada.tile.mp4" data-full-src="projects/ada/ada.mp4" class="project-video" loop muted playsinline></video>
                 <span class="project-title">Ada</span>
-                <span class="project-desc">AI HWE. Hopefully one day I can start a company</span>
+                <span class="project-desc">World's first AI Hardware Engineer. Think Devin for hardware. <span class="project-link">Link ↗</span></span>
             </a>
             <a href="#" class="project-card" data-lightbox>
                 <video poster="projects/aggie-street-smart/aggie-street-smart.poster.jpg" preload="none" src="projects/aggie-street-smart/aggie-street-smart.tile.mp4" data-full-src="projects/aggie-street-smart/aggie-street-smart.mp4" class="project-video project-video-letterbox" loop muted playsinline></video>
@@ -1342,6 +1345,8 @@
 
             document.querySelectorAll('.project-card[data-lightbox]').forEach(function(card) {
                 card.addEventListener('click', function(e) {
+                    // "Link ↗" inside a tile follows the card's href instead of opening the lightbox.
+                    if (e.target.closest('.project-link')) return;
                     e.preventDefault();
                     var media = card.querySelector('video, img');
                     if (!media) return;
@@ -1374,7 +1379,12 @@
                     el.className = 'lightbox-media';
                     slot.appendChild(el);
                     title.textContent = (card.querySelector('.project-title') || {}).textContent || '';
-                    desc.textContent = (card.querySelector('.project-desc') || {}).textContent || '';
+                    var descEl = card.querySelector('.project-desc');
+                    if (descEl) {
+                        descEl = descEl.cloneNode(true);
+                        descEl.querySelectorAll('.project-link').forEach(function(n) { n.remove(); });
+                    }
+                    desc.textContent = descEl ? descEl.textContent.trim() : '';
                     var href = card.getAttribute('href');
                     link.hidden = !href || href === '#';
                     link.href = href || '#';
